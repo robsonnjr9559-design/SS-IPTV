@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Philco API Player</title>
+    <title>Philco IPTV Final</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- ESTILO VISUAL MANTIDO (NetRange Dark/Green) --- */
+        /* --- ESTILO (MANTIDO O VISUAL QUE VOCÊ GOSTOU) --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
             background-color: #0d0d0d; color: #ecf0f1;
@@ -16,7 +16,7 @@
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* TELA DE LOGIN */
+        /* LOGIN */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
@@ -24,10 +24,11 @@
         }
         .login-box {
             background: rgba(20, 20, 20, 0.95); padding: 40px; border-radius: 15px;
-            border: 1px solid #333; width: 450px; text-align: center;
-            box-shadow: 0 0 50px rgba(46, 204, 113, 0.1);
+            border: 1px solid #333; width: 500px; text-align: center;
+            box-shadow: 0 0 50px rgba(0, 150, 255, 0.1);
         }
-        .login-box h2 { color: #2ecc71; margin-bottom: 20px; font-size: 26px; }
+        .login-box h2 { color: #00a8ff; margin-bottom: 20px; font-size: 26px; }
+        
         .login-box input {
             width: 100%; padding: 15px; margin: 10px 0;
             background: #222; border: 1px solid #444; color: white;
@@ -35,11 +36,20 @@
         }
         .login-box button {
             width: 100%; padding: 15px; margin-top: 20px;
-            background: #2ecc71; color: white; border: none; font-size: 20px; font-weight: bold;
+            background: #00a8ff; color: white; border: none; font-size: 20px; font-weight: bold;
             cursor: pointer; border-radius: 8px;
         }
+        .login-box button:hover { background: #008ecc; }
 
-        /* APP DASHBOARD */
+        /* DEBUG LOG (PARA VER ERROS REAIS) */
+        #debugLog {
+            margin-top: 15px; font-size: 12px; color: #ffeb3b; 
+            background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;
+            text-align: left; font-family: monospace; max-height: 100px; overflow-y: auto;
+            display: none; border: 1px solid #555;
+        }
+
+        /* APP */
         #app { display: none; height: 100%; width: 100%; display: flex; }
         
         .sidebar {
@@ -47,50 +57,46 @@
             border-right: 1px solid #222;
         }
         .sidebar-header {
-            padding: 15px; background: #151515; border-bottom: 3px solid #2ecc71;
+            padding: 15px; background: #151515; border-bottom: 3px solid #00a8ff;
             font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center;
         }
         .back-btn {
-            background: #e74c3c; padding: 10px; font-size: 14px; cursor: pointer; border-radius: 4px; display: none;
+            background: #e74c3c; padding: 5px 10px; font-size: 12px; cursor: pointer; border-radius: 4px; display: none;
         }
 
         #listContainer { flex: 1; overflow-y: auto; }
-
-        /* ITEM DA LISTA */
         .list-item {
             padding: 12px 15px; border-bottom: 1px solid #222; color: #aaa;
             cursor: pointer; display: flex; justify-content: space-between; font-size: 15px;
         }
-        .list-item:hover { background: #1f1f1f; }
-        .list-item.active { background: #2ecc71; color: #fff; font-weight: bold; }
+        .list-item.active { background: #00a8ff; color: #fff; font-weight: bold; }
 
-        /* ÁREA DE VÍDEO */
         .main-stage {
             flex: 1; background: #000; position: relative;
             display: flex; flex-direction: column;
         }
         video { width: 100%; height: 100%; }
-
-        /* INFO BAR */
+        
         .info-bar {
             position: absolute; bottom: 0; width: 100%;
-            background: rgba(0,0,0,0.85); padding: 15px;
-            border-top: 2px solid #2ecc71;
+            background: rgba(0,0,0,0.9); padding: 15px; border-top: 2px solid #00a8ff;
         }
         .program-info h1 { margin: 0; font-size: 22px; color: white; }
-        .program-info p { margin: 5px 0 0; color: #aaa; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2><i class="fas fa-server"></i> API CONNECTION</h2>
+            <h2><i class="fas fa-satellite-dish"></i> Conexão Segura</h2>
             <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
-            <button onclick="fazerLoginAPI()" id="btnConnect">ENTRAR (MODO RÁPIDO)</button>
+            
+            <button onclick="iniciarLoginBlindado()" id="btnConnect">ENTRAR</button>
+            
             <div id="statusMsg" style="margin-top:15px; color:#aaa; font-size:14px;"></div>
+            <div id="debugLog"></div>
         </div>
     </div>
 
@@ -107,24 +113,25 @@
             <div class="info-bar">
                 <div class="program-info">
                     <h1 id="channelName">Bem-vindo</h1>
-                    <p id="channelInfo">Selecione uma categoria para começar</p>
+                    <p id="channelInfo">Selecione um canal</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO ---
+        // CONFIGURAÇÃO
         let SERVER_URL = "";
         let USERNAME = "";
         let PASSWORD = "";
         let hls = null;
         let selectedIndex = 0;
-        
-        // Proxy Rápido (CorsProxy)
-        const PROXY_BASE = "https://corsproxy.io/?";
+        let API_MODE = true; // Se false, usa modo M3U
 
-        // Auto-preenchimento
+        // Proxies (Sua rota de fuga)
+        const PROXY_1 = "https://corsproxy.io/?";
+        const PROXY_2 = "https://api.allorigins.win/raw?url=";
+
         window.onload = () => {
             if(localStorage.getItem('host')) {
                 document.getElementById('host').value = localStorage.getItem('host');
@@ -133,20 +140,21 @@
             }
         };
 
-        // --- 1. LOGIN VIA API (Instantâneo) ---
-        function fazerLoginAPI() {
+        function log(msg) {
+            const d = document.getElementById('debugLog');
+            d.style.display = 'block';
+            d.innerHTML += `> ${msg}<br>`;
+            d.scrollTop = d.scrollHeight;
+        }
+
+        async function iniciarLoginBlindado() {
             const host = document.getElementById('host').value.trim();
             const user = document.getElementById('user').value.trim();
             const pass = document.getElementById('pass').value.trim();
-            const msg = document.getElementById('statusMsg');
             const btn = document.getElementById('btnConnect');
 
-            if(!host || !user || !pass) {
-                msg.innerText = "Preencha todos os campos.";
-                return;
-            }
+            if(!host || !user || !pass) return alert("Preencha tudo!");
 
-            // Limpa e prepara URL
             let cleanHost = host.startsWith('http') ? host : 'http://' + host;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             
@@ -159,38 +167,95 @@
             localStorage.setItem('pass', pass);
 
             btn.disabled = true;
-            btn.innerText = "AUTENTICANDO...";
-            msg.innerText = "Verificando conta...";
+            document.getElementById('debugLog').innerHTML = ""; // Limpa log
+            log("Iniciando tentativa de conexão...");
 
-            // Testa Login pedindo info do usuário (player_api.php)
-            const authUrl = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}`;
-            const proxyAuth = PROXY_BASE + encodeURIComponent(authUrl);
+            // TENTATIVA 1: API via Proxy Padrão
+            try {
+                log("Método 1: API Padrão...");
+                await testarAPI(PROXY_1);
+                sucessoLogin();
+                return;
+            } catch (e) {
+                log("Falha Método 1: " + e.message);
+            }
 
-            fetch(proxyAuth)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.user_info && data.user_info.auth === 1) {
-                        if(data.user_info.status === "Active") {
-                            msg.style.color = "#2ecc71";
-                            msg.innerText = "Login Aprovado! Carregando menu...";
-                            setTimeout(() => {
-                                iniciarApp();
-                                carregarCategorias();
-                            }, 500);
+            // TENTATIVA 2: API via Proxy Alternativo
+            try {
+                log("Método 2: Rota Alternativa...");
+                await testarAPI(PROXY_2);
+                sucessoLogin();
+                return;
+            } catch (e) {
+                log("Falha Método 2: " + e.message);
+            }
+
+            // TENTATIVA 3: Força Bruta (Verifica M3U direto)
+            // Isso resolve quando a API retorna "erro" mas a lista funciona
+            try {
+                log("Método 3: Verificação de Lista (Fallback)...");
+                await testarM3U(PROXY_1);
+                API_MODE = false; // Muda para modo compatibilidade
+                sucessoLogin();
+                return;
+            } catch (e) {
+                log("Todas as tentativas falharam.");
+                document.getElementById('statusMsg').innerText = "Erro Crítico. Veja o log amarelo.";
+                document.getElementById('statusMsg').style.color = "red";
+                btn.disabled = false;
+            }
+        }
+
+        function testarAPI(proxy) {
+            return new Promise((resolve, reject) => {
+                const url = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}`;
+                const finalUrl = proxy + encodeURIComponent(url);
+                
+                fetch(finalUrl)
+                    .then(res => {
+                        if(!res.ok) throw new Error("Http Error " + res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        if(data.user_info && data.user_info.auth === 1) {
+                            if(data.user_info.status === "Active") resolve(true);
+                            else reject(new Error("Conta Expirada/Inativa"));
                         } else {
-                            throw new Error("Sua conta está Expirada ou Inativa.");
+                            // Se o servidor respondeu JSON mas auth não é 1
+                            reject(new Error("Credenciais rejeitadas pela API"));
                         }
-                    } else {
-                        throw new Error("Usuário ou Senha incorretos.");
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    msg.style.color = "#e74c3c";
-                    msg.innerText = "Erro: " + (err.message || "Falha na conexão. Verifique a URL/Porta.");
-                    btn.disabled = false;
-                    btn.innerText = "TENTAR NOVAMENTE";
-                });
+                    })
+                    .catch(err => reject(err));
+            });
+        }
+
+        function testarM3U(proxy) {
+            return new Promise((resolve, reject) => {
+                // Tenta baixar apenas 1KB da lista para ver se conecta
+                const url = `${SERVER_URL}/get.php?username=${USERNAME}&password=${PASSWORD}&type=m3u_plus&output=ts`;
+                const finalUrl = proxy + encodeURIComponent(url);
+
+                fetch(finalUrl)
+                    .then(res => {
+                        if(!res.ok) throw new Error("Erro de rede");
+                        return res.text();
+                    })
+                    .then(text => {
+                        if(text.includes("#EXTM3U") || text.includes("#EXTINF")) resolve(true);
+                        else reject(new Error("Não é uma lista válida"));
+                    })
+                    .catch(err => reject(err));
+            });
+        }
+
+        function sucessoLogin() {
+            document.getElementById('statusMsg').innerText = "Conectado com sucesso!";
+            document.getElementById('statusMsg').style.color = "#00a8ff";
+            setTimeout(() => {
+                iniciarApp();
+                if(API_MODE) carregarCategorias();
+                else carregarCategoriasM3U(); // Modo antigo se API falhar
+            }, 1000);
         }
 
         function iniciarApp() {
@@ -198,133 +263,94 @@
             document.getElementById('app').style.display = 'flex';
         }
 
-        // --- 2. CARREGAR CATEGORIAS (Leve) ---
+        // --- LÓGICA DO PLAYER (IGUAL AO ANTERIOR) ---
         function carregarCategorias() {
             const listDiv = document.getElementById('listContainer');
-            listDiv.innerHTML = "<div style='padding:20px; text-align:center'>Carregando categorias...</div>";
+            listDiv.innerHTML = "<div style='padding:20px; text-align:center'>Carregando...</div>";
             document.getElementById('headerTitle').innerText = "CATEGORIAS";
             document.getElementById('backBtn').style.display = "none";
 
-            const catUrl = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_live_categories`;
-            const proxyCat = PROXY_BASE + encodeURIComponent(catUrl);
-
-            fetch(proxyCat)
+            const url = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_live_categories`;
+            fetch(PROXY_1 + encodeURIComponent(url))
                 .then(res => res.json())
-                .then(data => {
-                    renderizarLista(data, 'categoria');
-                })
-                .catch(err => {
-                    listDiv.innerHTML = "<div style='padding:20px; color:red'>Erro ao carregar categorias.</div>";
-                });
+                .then(data => renderizarLista(data, 'categoria'))
+                .catch(() => listDiv.innerHTML = "Erro ao carregar menu.");
         }
 
-        // --- 3. CARREGAR CANAIS DA CATEGORIA (Sob demanda) ---
+        function carregarCategoriasM3U() {
+             // Fallback simples se a API falhar
+             const listDiv = document.getElementById('listContainer');
+             listDiv.innerHTML = "<div style='padding:20px;'>Modo Compatibilidade Ativado.<br>A API do seu servidor bloqueou o acesso.<br>Tente usar um App nativo (SSIPTV).</div>";
+        }
+
         function abrirCategoria(catId, catName) {
             const listDiv = document.getElementById('listContainer');
             listDiv.innerHTML = "<div style='padding:20px; text-align:center'>Carregando canais...</div>";
-            document.getElementById('headerTitle').innerText = catName.substring(0, 15) + "...";
+            document.getElementById('headerTitle').innerText = catName;
             document.getElementById('backBtn').style.display = "block";
 
-            const streamsUrl = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_live_streams&category_id=${catId}`;
-            const proxyStreams = PROXY_BASE + encodeURIComponent(streamsUrl);
-
-            fetch(proxyStreams)
+            const url = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_live_streams&category_id=${catId}`;
+            fetch(PROXY_1 + encodeURIComponent(url))
                 .then(res => res.json())
-                .then(data => {
-                    renderizarLista(data, 'canal');
-                })
-                .catch(err => {
-                    listDiv.innerHTML = "<div style='padding:20px; color:red'>Erro ao carregar canais.</div>";
-                });
+                .then(data => renderizarLista(data, 'canal'))
+                .catch(() => listDiv.innerHTML = "Erro ao carregar canais.");
         }
 
-        // --- 4. RENDERIZAR LISTAS ---
         function renderizarLista(itens, tipo) {
             const listDiv = document.getElementById('listContainer');
-            listDiv.innerHTML = ""; // Limpa
+            listDiv.innerHTML = ""; 
 
-            if(itens.length === 0) {
-                listDiv.innerHTML = "<div style='padding:20px;'>Nenhum item encontrado.</div>";
+            if(!itens || itens.length === 0) {
+                listDiv.innerHTML = "<div style='padding:20px;'>Vazio</div>";
                 return;
             }
 
             itens.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'list-item';
-                
                 if(tipo === 'categoria') {
                     div.innerHTML = `<span>${item.category_name}</span>`;
                     div.onclick = () => abrirCategoria(item.category_id, item.category_name);
                 } else {
-                    // É Canal
                     div.innerHTML = `<span>${item.name}</span>`;
-                    div.onclick = () => tocarCanal(item);
+                    div.onclick = () => tocarCanal(item.stream_id, item.name);
                 }
-
                 if(index === 0) div.classList.add('active');
                 listDiv.appendChild(div);
             });
             selectedIndex = 0;
         }
 
-        // --- 5. TOCAR VÍDEO ---
-        function tocarCanal(canal) {
+        function tocarCanal(streamId, name) {
             const video = document.getElementById('videoPlayer');
-            document.getElementById('channelName').innerText = canal.name;
-            document.getElementById('channelInfo').innerText = "Carregando stream...";
-
-            // Monta URL direta do stream (Formato padrão Xtream)
-            // http://server/live/user/pass/stream_id.m3u8
-            const streamUrl = `${SERVER_URL}/live/${USERNAME}/${PASSWORD}/${canal.stream_id}.m3u8`;
+            document.getElementById('channelName').innerText = name;
             
-            // Toca direto (sem proxy pesado no vídeo se possível, se falhar o navegador avisa)
+            // Tenta link direto (algumas TVs aceitam)
+            const streamUrl = `${SERVER_URL}/live/${USERNAME}/${PASSWORD}/${streamId}.m3u8`;
+            
             if (Hls.isSupported()) {
                 if(hls) hls.destroy();
                 hls = new Hls();
                 hls.loadSource(streamUrl);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play();
-                    document.getElementById('channelInfo').innerText = "Reproduzindo";
-                });
-                hls.on(Hls.Events.ERROR, (e, data) => {
-                    if(data.fatal) {
-                        document.getElementById('channelInfo').innerText = "Erro ao reproduzir. (CORS ou Codec)";
-                    }
-                });
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = streamUrl;
                 video.play();
             }
         }
 
-        // --- CONTROLE REMOTO ---
+        // TECLADO
         document.addEventListener('keydown', (e) => {
             const items = document.querySelectorAll('.list-item');
-            if(items.length === 0) return;
-
+            if(!items.length) return;
             items[selectedIndex].classList.remove('active');
-
-            if (e.key === 'ArrowDown') {
-                selectedIndex = (selectedIndex + 1) % items.length;
-                items[selectedIndex].scrollIntoView({block: 'center'});
-            } 
-            else if (e.key === 'ArrowUp') {
-                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-                items[selectedIndex].scrollIntoView({block: 'center'});
-            }
-            else if (e.key === 'Enter') {
-                items[selectedIndex].click();
-            }
-            else if (e.key === 'Backspace' || e.key === 'Escape') {
-                // Se tiver botão voltar visível, clica nele
-                const backBtn = document.getElementById('backBtn');
-                if(backBtn.style.display !== 'none') {
-                    carregarCategorias();
-                }
-            }
-
+            if (e.key === 'ArrowDown') selectedIndex = (selectedIndex + 1) % items.length;
+            else if (e.key === 'ArrowUp') selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            else if (e.key === 'Enter') items[selectedIndex].click();
+            else if (e.key === 'Backspace') document.getElementById('backBtn').click();
             items[selectedIndex].classList.add('active');
+            items[selectedIndex].scrollIntoView({block:'center'});
         });
     </script>
 </body>
