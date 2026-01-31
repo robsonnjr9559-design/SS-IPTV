@@ -3,364 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineVision V9</title>
+    <title>TV Box Pro V10</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- ESTILO GERAL (Escuro e Limpo) --- */
+        /* --- RESET E BASE --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
-            background-color: #141414; color: #e5e5e5;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #111422; /* Fundo Azul Escuro das fotos */
+            color: #e5e5e5;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- TELA LOGIN --- */
+        /* --- TELA DE LOGIN (MANTIDA POIS FUNCIONA) --- */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000; display: flex; justify-content: center; align-items: center;
+            background: #0f1219; z-index: 2000; display: flex; justify-content: center; align-items: center;
         }
         .login-box {
-            background: rgba(0,0,0,0.85); padding: 50px; border-radius: 8px;
-            width: 450px; text-align: center; border: 1px solid #333;
+            background: #1c2235; padding: 40px; border-radius: 10px; border: 1px solid #333;
+            width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
-        .login-box h2 { color: #e50914; margin-bottom: 20px; font-size: 28px; font-weight: bold; }
+        .login-box h2 { color: #ff3b3b; margin-bottom: 20px; font-weight: bold; }
         .login-box input {
-            width: 100%; padding: 15px; margin: 10px 0; background: #333;
-            border: none; color: white; border-radius: 4px; font-size: 16px;
+            width: 100%; padding: 15px; margin: 10px 0; background: #111422;
+            border: 1px solid #333; color: white; border-radius: 5px; text-align: center;
         }
         .login-box button {
-            width: 100%; padding: 15px; margin-top: 20px; background: #e50914;
-            color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 18px;
+            width: 100%; padding: 15px; margin-top: 20px; background: #ff3b3b;
+            color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 5px;
         }
 
-        /* --- MENU SUPERIOR (NAVBAR) --- */
+        /* --- BARRA SUPERIOR (NAVBAR) --- */
         .navbar {
-            height: 60px; background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-            display: flex; align-items: center; padding: 0 40px; z-index: 100;
+            height: 60px; background: #1c2235; display: flex; align-items: center; 
+            padding: 0 20px; border-bottom: 2px solid #ff3b3b; justify-content: space-between;
         }
-        .nav-logo { font-size: 24px; color: #e50914; font-weight: bold; margin-right: 40px; }
-        .nav-menu { display: flex; gap: 20px; }
-        .nav-item {
-            font-size: 16px; color: #e5e5e5; cursor: pointer; transition: 0.3s; padding: 5px 10px;
-        }
-        .nav-item.active { font-weight: bold; color: white; border-bottom: 3px solid #e50914; }
-        .nav-item:hover { color: #b3b3b3; }
+        .nav-left { display: flex; gap: 30px; font-size: 16px; font-weight: bold; }
+        .nav-item { cursor: pointer; color: #aaa; display: flex; align-items: center; gap: 8px;}
+        .nav-item.active { color: white; }
+        .nav-item i { font-size: 18px; }
+        .clock { font-size: 20px; font-weight: bold; color: #fff; }
 
-        /* --- ÁREA PRINCIPAL --- */
-        .main-container { display: flex; flex: 1; overflow: hidden; position: relative; }
-
-        /* BARRA LATERAL (Categorias) */
-        .sidebar {
-            width: 280px; background: #000; overflow-y: auto; 
-            border-right: 1px solid #333; display: flex; flex-direction: column;
+        /* --- LAYOUT PRINCIPAL (3 COLUNAS) --- */
+        .main-layout {
+            display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden;
         }
+
+        /* COLUNA 1: CATEGORIAS (Esquerda) */
+        .col-categories {
+            width: 25%; background: #161b2e; border-right: 1px solid #2a324b;
+            display: flex; flex-direction: column;
+        }
+        .cat-header { padding: 15px; background: #1c2235; font-weight: bold; color: #aaa; font-size: 14px;}
+        .cat-list { overflow-y: auto; flex: 1; }
+        
         .cat-item {
-            padding: 15px 20px; color: #999; cursor: pointer; font-size: 14px;
-            border-bottom: 1px solid #222;
+            padding: 15px 20px; cursor: pointer; font-size: 14px; color: #ccc;
+            border-bottom: 1px solid #1f263e; transition: 0.2s;
         }
-        .cat-item:hover { background: #333; color: white; }
-        .cat-item.active { background: #e50914; color: white; font-weight: bold; }
-
-        /* ÁREA DE CONTEÚDO (Filmes/Canais) */
-        .content-view {
-            flex: 1; background: #141414; overflow-y: auto; padding: 20px;
-        }
-
-        /* GRADE DE FILMES (Grid) */
-        .grid-container {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-        }
-        .card {
-            background: #2f2f2f; border-radius: 4px; overflow: hidden; cursor: pointer;
-            transition: transform 0.2s; position: relative; aspect-ratio: 2/3;
-        }
-        .card:hover { transform: scale(1.1); z-index: 10; border: 2px solid #e5e5e5; }
-        .card img { width: 100%; height: 100%; object-fit: cover; }
-        .card-title {
-            position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.8);
-            color: white; font-size: 11px; padding: 5px; text-align: center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        .cat-item:hover { background: #1f263e; color: white; }
+        /* O Destaque Vermelho da Foto */
+        .cat-item.active { 
+            background: #ff3b3b; color: white; font-weight: bold; 
+            border-left: 5px solid white;
         }
 
-        /* LISTA DE TV (Lista Simples) */
-        .tv-list .tv-item {
-            padding: 15px; background: #222; margin-bottom: 5px; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
+        /* COLUNA 2: CANAIS (Meio) */
+        .col-channels {
+            width: 35%; background: #111422; border-right: 1px solid #2a324b;
+            display: flex; flex-direction: column;
         }
-        .tv-list .tv-item:hover { background: #444; }
-        .tv-list .tv-item.playing { border-left: 5px solid #e50914; background: #333; }
+        .chan-list { overflow-y: auto; flex: 1; }
+        
+        .chan-item {
+            padding: 15px 20px; cursor: pointer; font-size: 14px; color: #ccc;
+            border-bottom: 1px solid #1f263e; display: flex; justify-content: space-between;
+        }
+        .chan-item:hover { background: #1f263e; }
+        .chan-item.active { 
+            background: rgba(255, 59, 59, 0.2); 
+            border: 1px solid #ff3b3b; color: white; 
+        }
 
-        /* PLAYER FULLSCREEN */
-        #playerOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 3000; display: none;
+        /* COLUNA 3: PREVIEW E INFO (Direita) */
+        .col-preview {
+            width: 40%; background: #0d101b; display: flex; flex-direction: column;
+        }
+        
+        /* Área do Vídeo (Topo Direita) */
+        .video-container {
+            width: 100%; height: 50%; background: #000; position: relative;
+            display: flex; align-items: center; justify-content: center;
         }
         video { width: 100%; height: 100%; }
-        .close-btn {
-            position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.7);
-            color: white; padding: 10px 20px; cursor: pointer; border: 2px solid white;
-            font-weight: bold; z-index: 3001; font-size: 16px;
-        }
+        .placeholder-icon { font-size: 80px; color: #333; }
 
-        /* MENSAGENS DE ERRO/LOADING */
-        #statusDisplay {
-            padding: 20px; text-align: center; color: #666; font-size: 18px; margin-top: 50px;
+        /* Área de Informações (Baixo Direita - EPG) */
+        .info-container {
+            flex: 1; padding: 20px; overflow-y: auto;
+            background: linear-gradient(to bottom, #161b2e, #0d101b);
         }
+        .program-title { font-size: 22px; font-weight: bold; color: #ff3b3b; margin-bottom: 10px; }
+        .program-time { font-size: 16px; color: #fff; margin-bottom: 15px; display: inline-block; background: #333; padding: 5px 10px; border-radius: 4px;}
+        .program-desc { font-size: 14px; color: #aaa; line-height: 1.5; }
+
+        /* Barra de Progresso do Programa */
+        .progress-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-bottom: 20px; }
+        .progress-bar { width: 40%; height: 100%; background: #ff3b3b; border-radius: 3px; }
+
     </style>
 </head>
 <body>
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2>NETFLIX STYLE</h2>
+            <h2>XC TV PLAYER</h2>
             <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
-            <button onclick="tentarLogin()">ENTRAR</button>
-            <div id="loginMsg" style="margin-top:15px; color:#e50914; font-size:14px;"></div>
+            <button onclick="fazerLogin()">CONECTAR</button>
+            <div id="statusMsg" style="margin-top:15px; color:#aaa; font-size:12px;"></div>
         </div>
     </div>
 
     <div id="app" style="display:none;">
         <div class="navbar">
-            <div class="nav-logo">CINEBOX</div>
-            <div class="nav-menu">
-                <div class="nav-item active" onclick="mudarModo('live')" id="nav-live">TV AO VIVO</div>
-                <div class="nav-item" onclick="mudarModo('vod')" id="nav-vod">FILMES</div>
-                <div class="nav-item" onclick="mudarModo('series')" id="nav-series">SÉRIES</div>
+            <div class="nav-left">
+                <div class="nav-item active"><i class="fas fa-home"></i> INICIO</div>
+                <div class="nav-item"><i class="fas fa-tv"></i> TV</div>
+                <div class="nav-item"><i class="fas fa-film"></i> FILMES</div>
+                <div class="nav-item"><i class="fas fa-video"></i> SÉRIES</div>
             </div>
+            <div class="clock" id="clock">00:00</div>
         </div>
 
-        <div class="main-container">
-            <div class="sidebar" id="sidebarList">
+        <div class="main-layout">
+            
+            <div class="col-categories">
+                <div class="cat-header">LISTA DE CATEGORIAS</div>
+                <div class="cat-list" id="catList">
+                    </div>
+            </div>
+
+            <div class="col-channels">
+                <div class="cat-header" id="channelHeader">SELECIONE UMA CATEGORIA</div>
+                <div class="chan-list" id="chanList">
+                    </div>
+            </div>
+
+            <div class="col-preview">
+                <div class="video-container">
+                    <video id="videoPlayer" controls autoplay></video>
+                    <div id="videoPlaceholder" style="position:absolute; display:flex; flex-direction:column; align-items:center;">
+                        <i class="fas fa-tv placeholder-icon"></i>
+                        <span style="color:#444; margin-top:10px;">Preview</span>
+                    </div>
                 </div>
+                
+                <div class="info-container">
+                    <div class="program-title" id="infoTitle">Bem-vindo</div>
+                    <div class="progress-bg"><div class="progress-bar" style="width:0%"></div></div>
+                    <div class="program-time" id="infoTime">--:--</div>
+                    <div class="program-desc" id="infoDesc">
+                        Selecione um canal na lista para começar a assistir.
+                        <br><br>
+                        Use as setas do controle para navegar.
+                    </div>
+                </div>
+            </div>
 
-            <div class="content-view">
-                <div id="statusDisplay">Selecione uma categoria ao lado</div>
-                <div id="contentGrid" class="grid-container"></div> <div id="contentList" class="tv-list"></div> </div>
         </div>
-    </div>
-
-    <div id="playerOverlay">
-        <div class="close-btn" onclick="fecharPlayer()">FECHAR X</div>
-        <video id="videoPlayer" controls autoplay></video>
     </div>
 
     <script>
-        // CONFIGURAÇÕES
+        // --- VARIÁVEIS ---
         let CONFIG = { host: '', user: '', pass: '' };
         let PROXY = "https://corsproxy.io/?";
-        let currentMode = 'live'; 
         let hls = null;
+        
+        // Relógio
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+        }, 1000);
 
+        // Carregar Login Salvo
         window.onload = () => {
-            if(localStorage.getItem('saved_host')) {
-                document.getElementById('host').value = localStorage.getItem('saved_host');
-                document.getElementById('user').value = localStorage.getItem('saved_user');
-                document.getElementById('pass').value = localStorage.getItem('saved_pass');
+            if(localStorage.getItem('tv_host')) {
+                document.getElementById('host').value = localStorage.getItem('tv_host');
+                document.getElementById('user').value = localStorage.getItem('tv_user');
+                document.getElementById('pass').value = localStorage.getItem('tv_pass');
             }
         }
 
-        function tentarLogin() {
+        // --- LOGIN BLINDADO (Igual V7 que funciona) ---
+        function fazerLogin() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
+            const msg = document.getElementById('statusMsg');
 
-            if(!h || !u || !p) return alert("Preencha todos os dados");
+            if(!h || !u || !p) return alert("Preencha todos os campos");
 
+            // Limpeza URL
             let cleanHost = h.startsWith('http') ? h : 'http://' + h;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
 
             CONFIG = { host: cleanHost, user: u, pass: p };
             
-            // Salva
-            localStorage.setItem('saved_host', h);
-            localStorage.setItem('saved_user', u);
-            localStorage.setItem('saved_pass', p);
+            // Salvar
+            localStorage.setItem('tv_host', h);
+            localStorage.setItem('tv_user', u);
+            localStorage.setItem('tv_pass', p);
 
-            document.getElementById('loginMsg').innerText = "Validando acesso...";
+            msg.innerText = "Conectando ao servidor...";
 
-            // Tenta logar
+            // Teste API
             const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`;
             
             fetch(PROXY + encodeURIComponent(url))
                 .then(res => res.json())
                 .then(data => {
                     if(data.user_info && data.user_info.auth === 1) {
-                        if(data.user_info.status === 'Active') {
-                            entrarNoApp();
-                        } else {
-                            throw new Error("Conta Expirada");
-                        }
+                        msg.style.color = "#4cd137";
+                        msg.innerText = "Sucesso! Carregando...";
+                        setTimeout(iniciarApp, 1000);
                     } else {
-                        throw new Error("Login Falhou");
+                        throw new Error("Login Recusado");
                     }
                 })
                 .catch(err => {
-                    document.getElementById('loginMsg').innerText = "Erro: " + err.message;
-                    // Tenta forçar entrada se o erro for apenas de CORS mas a lista funciona
-                    if(confirm("Houve um erro de validação, mas os dados parecem certos. Tentar entrar mesmo assim?")) {
-                        entrarNoApp();
+                    msg.style.color = "red";
+                    msg.innerText = "Erro: " + err.message;
+                    // Fallback de emergência (se API falhar mas dados estiverem certos)
+                    if(confirm("Erro de validação API. Tentar forçar a entrada?")) {
+                        iniciarApp();
                     }
                 });
         }
 
-        function entrarNoApp() {
+        function iniciarApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').style.display = 'block';
-            mudarModo('live'); // Começa na TV
+            carregarCategorias();
         }
 
-        // --- NAVEGAÇÃO ENTRE ABAS ---
-        function mudarModo(modo) {
-            currentMode = modo;
-            
-            // Atualiza botões do topo
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-' + modo).classList.add('active');
+        // --- CARREGAR CATEGORIAS (COLUNA 1) ---
+        function carregarCategorias() {
+            const list = document.getElementById('catList');
+            list.innerHTML = "<div style='padding:20px'>Carregando...</div>";
 
-            // Limpa telas
-            document.getElementById('sidebarList').innerHTML = "<div style='padding:20px; color:#666'>Carregando categorias...</div>";
-            document.getElementById('contentGrid').innerHTML = "";
-            document.getElementById('contentList').innerHTML = "";
-            document.getElementById('statusDisplay').innerText = "Aguarde...";
-
-            // Define qual API chamar
-            let action = 'get_live_categories';
-            if(modo === 'vod') action = 'get_vod_categories';
-            if(modo === 'series') action = 'get_series_categories';
-
-            buscarCategorias(action);
-        }
-
-        function buscarCategorias(action) {
-            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=${action}`;
-            
-            fetch(PROXY + encodeURIComponent(url))
-                .then(res => res.json())
-                .then(data => {
-                    if(Array.isArray(data) && data.length > 0) {
-                        renderizarCategorias(data);
-                        document.getElementById('statusDisplay').innerText = "Selecione uma categoria ao lado";
-                    } else {
-                        document.getElementById('sidebarList').innerHTML = "<div style='padding:20px'>Nenhuma categoria encontrada.</div>";
-                    }
-                })
-                .catch(err => {
-                    document.getElementById('sidebarList').innerHTML = "<div style='padding:20px; color:red'>Erro ao carregar menu.</div>";
-                    console.error(err);
-                });
-        }
-
-        function renderizarCategorias(data) {
-            const list = document.getElementById('sidebarList');
-            list.innerHTML = ""; // Limpa loading
-
-            data.forEach(cat => {
-                const div = document.createElement('div');
-                div.className = 'cat-item';
-                div.innerText = cat.category_name;
-                div.onclick = () => {
-                    // Marca ativo
-                    document.querySelectorAll('.cat-item').forEach(e => e.classList.remove('active'));
-                    div.classList.add('active');
-                    carregarConteudo(cat.category_id);
-                };
-                list.appendChild(div);
-            });
-        }
-
-        function carregarConteudo(catId) {
-            document.getElementById('statusDisplay').innerText = "Carregando conteúdo...";
-            document.getElementById('contentGrid').innerHTML = "";
-            document.getElementById('contentList').innerHTML = "";
-
-            let action = 'get_live_streams';
-            if(currentMode === 'vod') action = 'get_vod_streams';
-            if(currentMode === 'series') action = 'get_series';
-
-            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=${action}&category_id=${catId}`;
+            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
 
             fetch(PROXY + encodeURIComponent(url))
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('statusDisplay').innerText = ""; // Limpa msg
-                    if(currentMode === 'live') {
-                        renderizarListaTV(data);
-                    } else {
-                        renderizarGrade(data); // Filmes e Séries
-                    }
+                    list.innerHTML = "";
+                    if(!data.length) { list.innerHTML = "Lista Vazia"; return; }
+                    
+                    data.forEach(cat => {
+                        const div = document.createElement('div');
+                        div.className = 'cat-item';
+                        div.innerText = cat.category_name;
+                        div.onclick = () => {
+                            // Visual Ativo
+                            document.querySelectorAll('.cat-item').forEach(e => e.classList.remove('active'));
+                            div.classList.add('active');
+                            // Carregar Canais
+                            carregarCanais(cat.category_id, cat.category_name);
+                        };
+                        list.appendChild(div);
+                    });
                 })
-                .catch(err => {
-                    document.getElementById('statusDisplay').innerText = "Erro ao carregar lista de canais.";
-                });
+                .catch(err => list.innerHTML = "Erro ao baixar lista");
         }
 
-        // --- RENDERIZAÇÃO TV (LISTA) ---
-        function renderizarListaTV(canais) {
-            const container = document.getElementById('contentList');
-            container.style.display = 'block';
-            document.getElementById('contentGrid').style.display = 'none';
+        // --- CARREGAR CANAIS (COLUNA 2) ---
+        function carregarCanais(catId, catName) {
+            const list = document.getElementById('chanList');
+            const header = document.getElementById('channelHeader');
+            
+            header.innerText = catName.toUpperCase();
+            list.innerHTML = "<div style='padding:20px'>Carregando canais...</div>";
 
-            canais.forEach(ch => {
-                const div = document.createElement('div');
-                div.className = 'tv-item';
-                div.innerHTML = `
-                    <span>${ch.num} - ${ch.name}</span>
-                    <i class="fas fa-play" style="color:#e50914"></i>
-                `;
-                div.onclick = () => abrirPlayer(ch.stream_id, 'live', 'm3u8');
-                container.appendChild(div);
-            });
+            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${catId}`;
+
+            fetch(PROXY + encodeURIComponent(url))
+                .then(res => res.json())
+                .then(data => {
+                    list.innerHTML = "";
+                    if(!data.length) { list.innerHTML = "Nenhum canal nesta categoria"; return; }
+
+                    data.forEach(ch => {
+                        const div = document.createElement('div');
+                        div.className = 'chan-item';
+                        div.innerHTML = `<span>${ch.name}</span>`;
+                        div.onclick = () => {
+                             document.querySelectorAll('.chan-item').forEach(e => e.classList.remove('active'));
+                             div.classList.add('active');
+                             tocarCanal(ch);
+                        };
+                        list.appendChild(div);
+                    });
+                })
+                .catch(err => list.innerHTML = "Erro ao carregar canais");
         }
 
-        // --- RENDERIZAÇÃO FILMES (GRADE/CAPAS) ---
-        function renderizarGrade(itens) {
-            const container = document.getElementById('contentGrid');
-            container.style.display = 'grid';
-            document.getElementById('contentList').style.display = 'none';
+        // --- TOCAR CANAL (COLUNA 3) ---
+        function tocarCanal(ch) {
+            // Atualiza Info
+            document.getElementById('infoTitle').innerText = ch.name;
+            document.getElementById('infoDesc').innerHTML = `Canal ID: ${ch.stream_id}<br>Categoria: ${document.getElementById('channelHeader').innerText}`;
+            document.getElementById('videoPlaceholder').style.display = 'none';
 
-            if(itens.length === 0) document.getElementById('statusDisplay').innerText = "Categoria vazia.";
+            // Simulação de EPG (já que API EPG completa é pesada)
+            const randomProg = Math.floor(Math.random() * 80);
+            document.querySelector('.progress-bar').style.width = randomProg + '%';
+            document.getElementById('infoTime').innerText = "Ao Vivo";
 
-            itens.forEach(item => {
-                let img = item.stream_icon;
-                if(!img || img.length < 5) img = 'https://via.placeholder.com/200x300?text=Sem+Capa';
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <img src="${img}" onerror="this.src='https://via.placeholder.com/200x300?text=Erro+Img'">
-                    <div class="card-title">${item.name}</div>
-                `;
-                
-                card.onclick = () => {
-                    let ext = item.container_extension || 'mp4';
-                    // Se for série, simplifiquei para abrir direto para teste.
-                    // O correto seria listar episódios, mas isso exige outra tela.
-                    if(currentMode === 'series') alert("Abrir episódios desta série...");
-                    else abrirPlayer(item.stream_id, 'movie', ext);
-                };
-                container.appendChild(card);
-            });
-        }
-
-        // --- PLAYER DE VÍDEO ---
-        function abrirPlayer(id, tipo, ext) {
-            const overlay = document.getElementById('playerOverlay');
             const video = document.getElementById('videoPlayer');
-            overlay.style.display = 'block';
+            const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
 
-            let streamUrl = "";
-            if(tipo === 'live') {
-                streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${id}.${ext}`;
-            } else {
-                streamUrl = `${CONFIG.host}/movie/${CONFIG.user}/${CONFIG.pass}/${id}.${ext}`;
-            }
-
-            if(Hls.isSupported() && (ext === 'm3u8' || tipo === 'live')) {
+            if(Hls.isSupported()) {
                 if(hls) hls.destroy();
                 hls = new Hls();
                 hls.loadSource(streamUrl);
@@ -371,14 +338,6 @@
                 video.play();
             }
         }
-
-        function fecharPlayer() {
-            const video = document.getElementById('videoPlayer');
-            video.pause();
-            video.src = "";
-            document.getElementById('playerOverlay').style.display = 'none';
-        }
-
     </script>
 </body>
 </html>
