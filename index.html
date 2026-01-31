@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Philco IPTV Turbo</title>
+    <title>Philco API Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- ESTILO VISUAL (MANTIDO O ESCURO/VERDE) --- */
+        /* --- ESTILO VISUAL MANTIDO (NetRange Dark/Green) --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
             background-color: #0d0d0d; color: #ecf0f1;
@@ -16,7 +16,7 @@
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* LOGIN */
+        /* TELA DE LOGIN */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
@@ -25,10 +25,9 @@
         .login-box {
             background: rgba(20, 20, 20, 0.95); padding: 40px; border-radius: 15px;
             border: 1px solid #333; width: 450px; text-align: center;
-            box-shadow: 0 0 50px rgba(0,255,100,0.1);
+            box-shadow: 0 0 50px rgba(46, 204, 113, 0.1);
         }
         .login-box h2 { color: #2ecc71; margin-bottom: 20px; font-size: 26px; }
-        
         .login-box input {
             width: 100%; padding: 15px; margin: 10px 0;
             background: #222; border: 1px solid #444; color: white;
@@ -39,19 +38,8 @@
             background: #2ecc71; color: white; border: none; font-size: 20px; font-weight: bold;
             cursor: pointer; border-radius: 8px;
         }
-        .login-box button:disabled { background: #555; cursor: not-allowed; }
 
-        /* STATUS DE CARREGAMENTO */
-        #loadingBar {
-            width: 100%; height: 4px; background: #333; margin-top: 20px;
-            border-radius: 2px; overflow: hidden; display: none;
-        }
-        #loadingFill {
-            width: 0%; height: 100%; background: #2ecc71;
-            transition: width 0.3s;
-        }
-
-        /* APP */
+        /* APP DASHBOARD */
         #app { display: none; height: 100%; width: 100%; display: flex; }
         
         .sidebar {
@@ -60,78 +48,83 @@
         }
         .sidebar-header {
             padding: 15px; background: #151515; border-bottom: 3px solid #2ecc71;
-            font-weight: bold; font-size: 18px; display: flex; justify-content: space-between;
+            font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center;
         }
-        #backBtn {
-            background: #c0392b; padding: 12px; text-align: center; font-weight: bold;
-            cursor: pointer; display: none; font-size: 14px;
+        .back-btn {
+            background: #e74c3c; padding: 10px; font-size: 14px; cursor: pointer; border-radius: 4px; display: none;
         }
-        #channelList { flex: 1; overflow-y: auto; }
-        
+
+        #listContainer { flex: 1; overflow-y: auto; }
+
+        /* ITEM DA LISTA */
         .list-item {
             padding: 12px 15px; border-bottom: 1px solid #222; color: #aaa;
             cursor: pointer; display: flex; justify-content: space-between; font-size: 15px;
         }
+        .list-item:hover { background: #1f1f1f; }
         .list-item.active { background: #2ecc71; color: #fff; font-weight: bold; }
 
+        /* ÁREA DE VÍDEO */
         .main-stage {
             flex: 1; background: #000; position: relative;
             display: flex; flex-direction: column;
         }
         video { width: 100%; height: 100%; }
 
+        /* INFO BAR */
         .info-bar {
             position: absolute; bottom: 0; width: 100%;
-            background: rgba(0,0,0,0.9); padding: 15px;
+            background: rgba(0,0,0,0.85); padding: 15px;
             border-top: 2px solid #2ecc71;
         }
-        .program-info h1 { margin: 0; font-size: 24px; color: white; }
+        .program-info h1 { margin: 0; font-size: 22px; color: white; }
+        .program-info p { margin: 5px 0 0; color: #aaa; font-size: 14px; }
     </style>
 </head>
 <body>
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2><i class="fas fa-bolt"></i> IPTV TURBO</h2>
-            <input type="text" id="host" placeholder="http://servidor:porta">
+            <h2><i class="fas fa-server"></i> API CONNECTION</h2>
+            <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
-            
-            <button onclick="iniciarLogin()" id="btnConnect">ENTRAR RÁPIDO</button>
-            
-            <div id="loadingBar"><div id="loadingFill"></div></div>
-            <div id="statusMsg" style="margin-top:15px; color:#aaa; font-size:14px; min-height: 20px;"></div>
+            <button onclick="fazerLoginAPI()" id="btnConnect">ENTRAR (MODO RÁPIDO)</button>
+            <div id="statusMsg" style="margin-top:15px; color:#aaa; font-size:14px;"></div>
         </div>
     </div>
 
     <div id="app">
         <div class="sidebar">
             <div class="sidebar-header">
-                <span id="listTitle">CATEGORIAS</span>
+                <span id="headerTitle">CATEGORIAS</span>
+                <div class="back-btn" id="backBtn" onclick="carregarCategorias()">VOLTAR</div>
             </div>
-            <div id="backBtn" onclick="renderCategories()"> VOLTAR</div>
-            <div id="channelList"></div>
+            <div id="listContainer"></div>
         </div>
         <div class="main-stage">
             <video id="videoPlayer" controls autoplay></video>
             <div class="info-bar">
                 <div class="program-info">
-                    <h1 id="currentChannelName">Selecione um canal</h1>
-                    <p id="currentGroup" style="color:#aaa">...</p>
+                    <h1 id="channelName">Bem-vindo</h1>
+                    <p id="channelInfo">Selecione uma categoria para começar</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Configuração
-        const TIMEOUT_MS = 15000; // 15 segundos limite
-        
-        // Estado
-        let categories = {};
+        // --- CONFIGURAÇÃO ---
+        let SERVER_URL = "";
+        let USERNAME = "";
+        let PASSWORD = "";
         let hls = null;
         let selectedIndex = 0;
+        
+        // Proxy Rápido (CorsProxy)
+        const PROXY_BASE = "https://corsproxy.io/?";
 
+        // Auto-preenchimento
         window.onload = () => {
             if(localStorage.getItem('host')) {
                 document.getElementById('host').value = localStorage.getItem('host');
@@ -140,197 +133,198 @@
             }
         };
 
-        function atualizarStatus(msg, cor = "#aaa", progresso = 0) {
-            const el = document.getElementById('statusMsg');
-            el.innerText = msg;
-            el.style.color = cor;
-            
-            const bar = document.getElementById('loadingBar');
-            const fill = document.getElementById('loadingFill');
-            
-            if(progresso > 0) {
-                bar.style.display = 'block';
-                fill.style.width = progresso + '%';
-            } else {
-                bar.style.display = 'none';
-            }
-        }
-
-        async function iniciarLogin() {
+        // --- 1. LOGIN VIA API (Instantâneo) ---
+        function fazerLoginAPI() {
             const host = document.getElementById('host').value.trim();
             const user = document.getElementById('user').value.trim();
             const pass = document.getElementById('pass').value.trim();
+            const msg = document.getElementById('statusMsg');
             const btn = document.getElementById('btnConnect');
 
             if(!host || !user || !pass) {
-                atualizarStatus("Preencha todos os campos!", "#ff5555");
+                msg.innerText = "Preencha todos os campos.";
                 return;
             }
 
-            // Tratamento da URL (Garante http:// e remove barra final)
+            // Limpa e prepara URL
             let cleanHost = host.startsWith('http') ? host : 'http://' + host;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
+            
+            SERVER_URL = cleanHost;
+            USERNAME = user;
+            PASSWORD = pass;
 
             localStorage.setItem('host', host);
             localStorage.setItem('user', user);
             localStorage.setItem('pass', pass);
 
             btn.disabled = true;
-            btn.style.opacity = "0.5";
-            
-            // Monta URL da lista
-            const playlistUrl = `${cleanHost}/get.php?username=${user}&password=${pass}&type=m3u_plus&output=m3u8`;
+            btn.innerText = "AUTENTICANDO...";
+            msg.innerText = "Verificando conta...";
 
-            try {
-                // TENTATIVA 1: Proxy Rápido (CorsProxy)
-                atualizarStatus("Tentando servidor rápido...", "#ffff00", 30);
-                await baixarLista('https://corsproxy.io/?' + encodeURIComponent(playlistUrl));
+            // Testa Login pedindo info do usuário (player_api.php)
+            const authUrl = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}`;
+            const proxyAuth = PROXY_BASE + encodeURIComponent(authUrl);
 
-            } catch (erro1) {
-                console.warn("Falha no método 1, tentando método 2...");
-                
-                try {
-                    // TENTATIVA 2: Proxy Reserva (AllOrigins) - Mais lento mas compatível
-                    atualizarStatus("Servidor rápido ocupado. Tentando rota alternativa...", "#ffaa00", 60);
-                    await baixarLista('https://api.allorigins.win/raw?url=' + encodeURIComponent(playlistUrl));
-                    
-                } catch (erro2) {
-                    console.error(erro2);
-                    atualizarStatus("Falha na conexão. Verifique se digitou a PORTA correta (ex: :80 ou :8080) na url.", "#ff5555", 0);
-                    btn.disabled = false;
-                    btn.style.opacity = "1";
-                }
-            }
-        }
-
-        function baixarLista(proxyUrl) {
-            return new Promise((resolve, reject) => {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-                fetch(proxyUrl, { signal: controller.signal })
-                    .then(res => {
-                        clearTimeout(timeoutId);
-                        if (!res.ok) throw new Error("Erro " + res.status);
-                        return res.text();
-                    })
-                    .then(data => {
-                        if (data.includes("#EXTM3U")) {
-                            atualizarStatus("Lista baixada! Organizando canais...", "#2ecc71", 90);
-                            // Pequeno delay para a UI atualizar
+            fetch(proxyAuth)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.user_info && data.user_info.auth === 1) {
+                        if(data.user_info.status === "Active") {
+                            msg.style.color = "#2ecc71";
+                            msg.innerText = "Login Aprovado! Carregando menu...";
                             setTimeout(() => {
-                                processarLista(data);
                                 iniciarApp();
-                                resolve();
-                            }, 100);
+                                carregarCategorias();
+                            }, 500);
                         } else {
-                            reject(new Error("Login inválido ou lista vazia"));
+                            throw new Error("Sua conta está Expirada ou Inativa.");
                         }
-                    })
-                    .catch(err => {
-                        clearTimeout(timeoutId);
-                        reject(err);
-                    });
-            });
-        }
-
-        function processarLista(data) {
-            const lines = data.split('\n');
-            categories = {};
-            let currentGroup = "Outros";
-
-            // Loop otimizado
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-                if (line.startsWith('#EXTINF')) {
-                    const groupMatch = line.match(/group-title="([^"]*)"/);
-                    if (groupMatch) currentGroup = groupMatch[1];
-                    
-                    const nameParts = line.split(',');
-                    const name = nameParts[nameParts.length - 1];
-                    
-                    // Pega a próxima linha (URL)
-                    if (lines[i+1] && lines[i+1].startsWith('http')) {
-                        const url = lines[i+1].trim();
-                        if (!categories[currentGroup]) categories[currentGroup] = [];
-                        categories[currentGroup].push({ name, url, group: currentGroup });
-                        i++; // Pula a linha da URL
+                    } else {
+                        throw new Error("Usuário ou Senha incorretos.");
                     }
-                }
-            }
+                })
+                .catch(err => {
+                    console.error(err);
+                    msg.style.color = "#e74c3c";
+                    msg.innerText = "Erro: " + (err.message || "Falha na conexão. Verifique a URL/Porta.");
+                    btn.disabled = false;
+                    btn.innerText = "TENTAR NOVAMENTE";
+                });
         }
 
         function iniciarApp() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
-            renderCategories();
         }
 
-        function renderCategories() {
-            const listDiv = document.getElementById('channelList');
-            listDiv.innerHTML = "";
-            document.getElementById('listTitle').innerText = "CATEGORIAS";
-            document.getElementById('backBtn').style.display = 'none';
+        // --- 2. CARREGAR CATEGORIAS (Leve) ---
+        function carregarCategorias() {
+            const listDiv = document.getElementById('listContainer');
+            listDiv.innerHTML = "<div style='padding:20px; text-align:center'>Carregando categorias...</div>";
+            document.getElementById('headerTitle').innerText = "CATEGORIAS";
+            document.getElementById('backBtn').style.display = "none";
 
-            Object.keys(categories).sort().forEach((cat, index) => {
+            const catUrl = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_live_categories`;
+            const proxyCat = PROXY_BASE + encodeURIComponent(catUrl);
+
+            fetch(proxyCat)
+                .then(res => res.json())
+                .then(data => {
+                    renderizarLista(data, 'categoria');
+                })
+                .catch(err => {
+                    listDiv.innerHTML = "<div style='padding:20px; color:red'>Erro ao carregar categorias.</div>";
+                });
+        }
+
+        // --- 3. CARREGAR CANAIS DA CATEGORIA (Sob demanda) ---
+        function abrirCategoria(catId, catName) {
+            const listDiv = document.getElementById('listContainer');
+            listDiv.innerHTML = "<div style='padding:20px; text-align:center'>Carregando canais...</div>";
+            document.getElementById('headerTitle').innerText = catName.substring(0, 15) + "...";
+            document.getElementById('backBtn').style.display = "block";
+
+            const streamsUrl = `${SERVER_URL}/player_api.php?username=${USERNAME}&password=${PASSWORD}&action=get_live_streams&category_id=${catId}`;
+            const proxyStreams = PROXY_BASE + encodeURIComponent(streamsUrl);
+
+            fetch(proxyStreams)
+                .then(res => res.json())
+                .then(data => {
+                    renderizarLista(data, 'canal');
+                })
+                .catch(err => {
+                    listDiv.innerHTML = "<div style='padding:20px; color:red'>Erro ao carregar canais.</div>";
+                });
+        }
+
+        // --- 4. RENDERIZAR LISTAS ---
+        function renderizarLista(itens, tipo) {
+            const listDiv = document.getElementById('listContainer');
+            listDiv.innerHTML = ""; // Limpa
+
+            if(itens.length === 0) {
+                listDiv.innerHTML = "<div style='padding:20px;'>Nenhum item encontrado.</div>";
+                return;
+            }
+
+            itens.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'list-item';
-                div.innerHTML = `<span>${cat}</span> <small>${categories[cat].length}</small>`;
-                div.onclick = () => abrirCategoria(cat);
+                
+                if(tipo === 'categoria') {
+                    div.innerHTML = `<span>${item.category_name}</span>`;
+                    div.onclick = () => abrirCategoria(item.category_id, item.category_name);
+                } else {
+                    // É Canal
+                    div.innerHTML = `<span>${item.name}</span>`;
+                    div.onclick = () => tocarCanal(item);
+                }
+
                 if(index === 0) div.classList.add('active');
                 listDiv.appendChild(div);
             });
             selectedIndex = 0;
         }
 
-        function abrirCategoria(cat) {
-            const listDiv = document.getElementById('channelList');
-            listDiv.innerHTML = "";
-            document.getElementById('listTitle').innerText = cat;
-            document.getElementById('backBtn').style.display = 'block';
-
-            categories[cat].forEach((ch, index) => {
-                const div = document.createElement('div');
-                div.className = 'list-item';
-                div.innerText = ch.name;
-                div.onclick = () => tocarCanal(ch);
-                if(index === 0) div.classList.add('active');
-                listDiv.appendChild(div);
-            });
-            selectedIndex = 0;
-        }
-
-        function tocarCanal(ch) {
+        // --- 5. TOCAR VÍDEO ---
+        function tocarCanal(canal) {
             const video = document.getElementById('videoPlayer');
-            document.getElementById('currentChannelName').innerText = ch.name;
-            document.getElementById('currentGroup').innerText = ch.group;
+            document.getElementById('channelName').innerText = canal.name;
+            document.getElementById('channelInfo').innerText = "Carregando stream...";
 
+            // Monta URL direta do stream (Formato padrão Xtream)
+            // http://server/live/user/pass/stream_id.m3u8
+            const streamUrl = `${SERVER_URL}/live/${USERNAME}/${PASSWORD}/${canal.stream_id}.m3u8`;
+            
+            // Toca direto (sem proxy pesado no vídeo se possível, se falhar o navegador avisa)
             if (Hls.isSupported()) {
                 if(hls) hls.destroy();
                 hls = new Hls();
-                hls.loadSource(ch.url);
+                hls.loadSource(streamUrl);
                 hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play();
+                    document.getElementById('channelInfo').innerText = "Reproduzindo";
+                });
+                hls.on(Hls.Events.ERROR, (e, data) => {
+                    if(data.fatal) {
+                        document.getElementById('channelInfo').innerText = "Erro ao reproduzir. (CORS ou Codec)";
+                    }
+                });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = ch.url;
+                video.src = streamUrl;
                 video.play();
             }
         }
 
-        // Navegação Teclado
+        // --- CONTROLE REMOTO ---
         document.addEventListener('keydown', (e) => {
             const items = document.querySelectorAll('.list-item');
-            if(!items.length) return;
-            
+            if(items.length === 0) return;
+
             items[selectedIndex].classList.remove('active');
-            
-            if(e.key === 'ArrowDown') selectedIndex = (selectedIndex + 1) % items.length;
-            if(e.key === 'ArrowUp') selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-            if(e.key === 'Enter') items[selectedIndex].click();
-            if(e.key === 'Backspace' || e.key === 'Escape') renderCategories();
+
+            if (e.key === 'ArrowDown') {
+                selectedIndex = (selectedIndex + 1) % items.length;
+                items[selectedIndex].scrollIntoView({block: 'center'});
+            } 
+            else if (e.key === 'ArrowUp') {
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+                items[selectedIndex].scrollIntoView({block: 'center'});
+            }
+            else if (e.key === 'Enter') {
+                items[selectedIndex].click();
+            }
+            else if (e.key === 'Backspace' || e.key === 'Escape') {
+                // Se tiver botão voltar visível, clica nele
+                const backBtn = document.getElementById('backBtn');
+                if(backBtn.style.display !== 'none') {
+                    carregarCategorias();
+                }
+            }
 
             items[selectedIndex].classList.add('active');
-            items[selectedIndex].scrollIntoView({block: 'center'});
         });
     </script>
 </body>
