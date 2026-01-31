@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Philco IPTV Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS (Mantivemos o visual escuro e verde) --- */
+        * { box-sizing: border-box; outline: none; user-select: none; }
+        body {
+            background-color: #0d0d0d;
+            color: #ecf0f1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* LOGIN */
+        #loginScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-box {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 50px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            width: 450px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: #2ecc71;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        .login-box input {
+            width: 100%; padding: 18px; margin: 12px 0;
+            background: #222; border: 1px solid #444; color: white;
+            font-size: 18px; text-align: center; border-radius: 8px;
+        }
+        .login-box input:focus { border-color: #2ecc71; background: #2a2a2a; }
+        
+        .login-box button {
+            width: 100%; padding: 18px; margin-top: 25px;
+            background: #2ecc71; color: white; border: none; font-size: 20px; font-weight: bold;
+            cursor: pointer; border-radius: 8px; transition: 0.3s;
+        }
+        .login-box button:hover { background: #27ae60; }
+
+        /* APP DASHBOARD */
+        #app { display: none; height: 100%; width: 100%; display: flex; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 350px;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+        }
+        .sidebar-header {
+            padding: 20px; background: #1a1a1a;
+            border-bottom: 3px solid #2ecc71;
+            font-weight: bold; font-size: 18px;
+            display: flex; justify-content: space-between;
+        }
+        #channelList { flex: 1; overflow-y: auto; }
+        
+        .list-item {
+            padding: 15px; border-bottom: 1px solid #222;
+            color: #aaa; cursor: pointer; display: flex; justify-content: space-between;
+            font-size: 16px;
+        }
+        .list-item.active {
+            background: #2ecc71; color: #fff; font-weight: bold;
+        }
+
+        /* VIDEO AREA */
+        .main-stage {
+            flex: 1; background: #000; position: relative;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        video { width: 100%; height: 100%; object-fit: contain; }
+
+        /* INFO BAR */
+        .info-bar {
+            position: absolute; bottom: 0; width: 100%;
+            background: rgba(0,0,0,0.8); padding: 20px;
+            border-top: 2px solid #2ecc71;
+            display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .program-info h1 { margin: 0; font-size: 26px; color: #fff; }
+        .program-info p { margin: 5px 0 0; color: #ccc; }
+
+        /* Botão Voltar */
+        #backBtn {
+            background: #e74c3c; padding: 15px; text-align: center;
+            font-weight: bold; cursor: pointer; display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2><i class="fas fa-tv"></i> NetRange Player</h2>
+            <input type="text" id="host" placeholder="http://servidor:porta">
+            <input type="text" id="user" placeholder="Usuário">
+            <input type="password" id="pass" placeholder="Senha">
+            <button onclick="fazerLogin()" id="btnConnect">CONECTAR</button>
+            <div id="statusMsg" style="margin-top:20px; color:#ff5555; font-size:14px; min-height: 20px;"></div>
+        </div>
+    </div>
+
+    <div id="app">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <span id="listTitle">CATEGORIAS</span>
+            </div>
+            <div id="backBtn" onclick="renderCategories()"><i class="fas fa-arrow-left"></i> VOLTAR</div>
+            <div id="channelList"></div>
+        </div>
+        
+        <div class="main-stage">
+            <video id="videoPlayer" controls autoplay></video>
+            <div class="info-bar">
+                <div class="program-info">
+                    <h1 id="currentChannelName">Bem-vindo</h1>
+                    <p id="currentGroup">Selecione um canal</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let categories = {};
+        let hls = null;
+        let selectedIndex = 0;
+
+        // Recuperar dados salvos
+        window.onload = () => {
+            if(localStorage.getItem('host')) {
+                document.getElementById('host').value = localStorage.getItem('host');
+                document.getElementById('user').value = localStorage.getItem('user');
+                document.getElementById('pass').value = localStorage.getItem('pass');
+            }
+        };
+
+        function fazerLogin() {
+            const host = document.getElementById('host').value.trim();
+            const user = document.getElementById('user').value.trim();
+            const pass = document.getElementById('pass').value.trim();
+            const msg = document.getElementById('statusMsg');
+            const btn = document.getElementById('btnConnect');
+
+            if(!host || !user || !pass) {
+                msg.innerText = "Preencha todos os campos!";
+                return;
+            }
+
+            // Tratamento da URL
+            let cleanHost = host;
+            if(!cleanHost.startsWith('http')) cleanHost = 'http://' + cleanHost;
+            // Remove barra final se tiver
+            if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
+
+            localStorage.setItem('host', host);
+            localStorage.setItem('user', user);
+            localStorage.setItem('pass', pass);
+
+            msg.style.color = "#ffff00";
+            msg.innerText = "Tentando conectar (Aguarde até 20s)...";
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+
+            // Monta a URL da lista
+            const playlistUrl = `${cleanHost}/get.php?username=${user}&password=${pass}&type=m3u_plus&output=m3u8`;
+
+            // === NOVO MÉTODO DE PROXY (AllOrigins) ===
+            // 'raw?url=' pede o conteúdo bruto do texto
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(playlistUrl);
+
+            console.log("Tentando baixar:", proxyUrl);
+
+            fetch(proxyUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Servidor não respondeu (Erro " + response.status + ")");
+                    return response.text();
+                })
+                .then(data => {
+                    // Verifica se é uma lista válida
+                    if (data.includes("#EXTM3U")) {
+                        processarLista(data);
+                        iniciarApp();
+                    } else if (data.length < 50) {
+                        throw new Error("Login inválido ou conta expirada.");
+                    } else {
+                        throw new Error("Formato de lista desconhecido.");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    msg.style.color = "#ff5555";
+                    msg.innerHTML = `Erro: ${err.message}<br><br>DICA: Verifique se esqueceu a porta (ex: :8080) no final do servidor.`;
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                });
+        }
+
+        function processarLista(data) {
+            const lines = data.split('\n');
+            categories = {};
+            let currentGroup = "Outros";
+            let currentName = "";
+
+            lines.forEach(line => {
+                line = line.trim();
+                if(line.startsWith('#EXTINF')) {
+                    let groupMatch = line.match(/group-title="([^"]*)"/);
+                    currentGroup = groupMatch ? groupMatch[1] : "Geral";
+                    let nameParts = line.split(',');
+                    currentName = nameParts[nameParts.length - 1];
+                } else if(line.startsWith('http')) {
+                    if(!categories[currentGroup]) categories[currentGroup] = [];
+                    categories[currentGroup].push({ name: currentName, url: line, group: currentGroup });
+                }
+            });
+        }
+
+        function iniciarApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            renderCategories();
+        }
+
+        function renderCategories() {
+            const listDiv = document.getElementById('channelList');
+            listDiv.innerHTML = "";
+            document.getElementById('listTitle').innerText = "CATEGORIAS";
+            document.getElementById('backBtn').style.display = 'none';
+
+            Object.keys(categories).sort().forEach((cat, index) => {
+                let div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `<span>${cat}</span> <span>${categories[cat].length}</span>`;
+                div.onclick = () => abrirCategoria(cat);
+                if(index === 0) div.classList.add('active');
+                listDiv.appendChild(div);
+            });
+            selectedIndex = 0;
+        }
+
+        function abrirCategoria(cat) {
+            const listDiv = document.getElementById('channelList');
+            listDiv.innerHTML = "";
+            document.getElementById('listTitle').innerText = cat;
+            document.getElementById('backBtn').style.display = 'block';
+
+            categories[cat].forEach((ch, index) => {
+                let div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerText = ch.name;
+                div.onclick = () => tocarCanal(ch);
+                if(index === 0) div.classList.add('active');
+                listDiv.appendChild(div);
+            });
+            selectedIndex = 0;
+        }
+
+        function tocarCanal(ch) {
+            const video = document.getElementById('videoPlayer');
+            document.getElementById('currentChannelName').innerText = ch.name;
+            document.getElementById('currentGroup').innerText = ch.group;
+
+            if (Hls.isSupported()) {
+                if(hls) hls.destroy();
+                hls = new Hls();
+                hls.loadSource(ch.url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = ch.url;
+                video.play();
+            }
+        }
+
+        // Navegação Teclado
+        document.addEventListener('keydown', (e) => {
+            let items = document.querySelectorAll('.list-item');
+            if(!items.length) return;
+            items[selectedIndex].classList.remove('active');
+            
+            if(e.key === 'ArrowDown') selectedIndex = (selectedIndex + 1) % items.length;
+            if(e.key === 'ArrowUp') selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            if(e.key === 'Enter') items[selectedIndex].click();
+            if(e.key === 'Backspace') renderCategories();
+
+            items[selectedIndex].classList.add('active');
+            items[selectedIndex].scrollIntoView({block: 'center'});
+        });
+    </script>
+</body>
+</html>
