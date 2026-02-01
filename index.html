@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>IPTV Smarters Red</title>
+    <title>IPTV Smarters Stable V27</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -13,112 +13,98 @@
         /* --- TEMA DARK / RED --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
-            background: #0f0f0f; /* Fundo Dark Puro */
+            background: #0f0f0f;
             color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- 1. TELA DE LOGIN (Estilo Smarters) --- */
+        /* --- 1. TELA DE LOGIN --- */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #000000 0%, #1a0505 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
             z-index: 3000; display: flex; justify-content: center; align-items: center;
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.05); padding: 50px; border-radius: 15px;
-            width: 500px; text-align: center; border-top: 4px solid #e50914;
-            backdrop-filter: blur(10px); box-shadow: 0 0 50px rgba(229, 9, 20, 0.1);
+            background: rgba(20, 20, 20, 0.9); padding: 50px; border-radius: 10px;
+            width: 450px; text-align: center; border-top: 3px solid #e50914;
+            box-shadow: 0 0 60px rgba(229, 9, 20, 0.1);
         }
-        .app-logo { font-size: 50px; font-weight: 900; color: #fff; letter-spacing: 2px; margin-bottom: 30px; }
-        .app-logo span { color: #e50914; } /* O vermelho do "TV" */
+        .app-logo { font-size: 40px; font-weight: 900; color: #fff; letter-spacing: 2px; margin-bottom: 20px; }
+        .app-logo span { color: #e50914; }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; color: #aaa; font-size: 12px; margin-bottom: 5px; margin-left: 5px;}
         .login-input {
-            width: 100%; padding: 15px; background: #222; border: 1px solid #333;
-            color: white; border-radius: 8px; font-size: 16px; text-align: center;
-            transition: 0.3s;
+            width: 100%; padding: 15px; background: #1a1a1a; border: 1px solid #333;
+            color: white; border-radius: 5px; font-size: 16px; text-align: center; margin-bottom: 15px;
         }
         .login-input.focused {
-            background: #333; border-color: #e50914; transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+            border-color: #e50914; background: #222; transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
         }
         .btn-login {
-            width: 100%; padding: 15px; background: #e50914; color: white;
-            border: none; border-radius: 8px; font-weight: bold; font-size: 18px; margin-top: 10px;
+            background: #e50914; color: white; font-weight: bold; border: none; cursor: pointer;
         }
-        .btn-login.focused { background: #ff3333; transform: scale(1.05); }
 
-        /* --- 2. MENU PRINCIPAL (DASHBOARD) --- */
+        /* --- 2. DASHBOARD --- */
         #dashboard {
             display: none; height: 100%; width: 100%; flex-direction: column;
-            background: radial-gradient(circle at center, #1a0505 0%, #000000 100%);
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
         }
-        .dash-header {
-            height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
-        }
-        .user-info { font-size: 14px; color: #aaa; text-align: right; }
-        .user-info strong { color: #e50914; display: block; font-size: 18px; }
-
-        .dash-grid {
-            flex: 1; display: flex; justify-content: center; align-items: center; gap: 30px;
-        }
+        .dash-header { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; border-bottom: 1px solid #222; }
         
+        .dash-grid { flex: 1; display: flex; justify-content: center; align-items: center; gap: 40px; }
         .dash-card {
-            width: 250px; height: 180px; background: linear-gradient(135deg, #1e1e1e 0%, #111 100%);
-            border-radius: 15px; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; cursor: pointer;
-            border: 2px solid transparent; transition: 0.3s;
+            width: 220px; height: 160px; background: #1a1a1a; border-radius: 10px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border: 2px solid transparent; transition: 0.2s;
         }
-        .dash-card i { font-size: 50px; margin-bottom: 20px; color: #555; }
-        .dash-card span { font-size: 20px; font-weight: bold; color: #fff; }
-        
+        .dash-card i { font-size: 40px; margin-bottom: 15px; color: #555; }
         .dash-card.focused {
-            background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
-            transform: scale(1.1); box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
-            border-color: #fff;
+            background: #e50914; transform: scale(1.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .dash-card.focused i { color: #fff; }
 
-        /* --- 3. LIVE TV PLAYER (3 COLUNAS) --- */
+        /* --- 3. LIVE TV (LAYOUT V24 + ESTILO V26) --- */
         #liveTvArea { display: none; height: 100%; width: 100%; display: flex; }
         
-        /* Colunas */
-        .col-cat { width: 25%; background: #080808; border-right: 1px solid #222; display: flex; flex-direction: column; }
-        .col-chn { width: 35%; background: #0c0c0c; border-right: 1px solid #222; display: flex; flex-direction: column; }
+        /* Larguras das Colunas (Ajuste "Como estava antes") */
+        .col-cat { width: 25%; background: #0a0a0a; border-right: 1px solid #1f1f1f; display: flex; flex-direction: column; }
+        .col-chn { width: 35%; background: #0f0f0f; border-right: 1px solid #1f1f1f; display: flex; flex-direction: column; }
         .col-vid { width: 40%; background: #000; display: flex; flex-direction: column; }
 
-        .list-head { padding: 15px; background: #e50914; color: white; font-weight: bold; text-align: center; }
+        .list-head { padding: 12px; background: #151515; color: #888; font-size: 13px; font-weight: bold; letter-spacing: 1px; }
         .scroll-list { flex: 1; overflow-y: auto; }
 
-        .item { padding: 15px; border-bottom: 1px solid #1a1a1a; color: #999; font-size: 14px; }
-        .item.active { background: #1a1a1a; color: white; border-left: 4px solid #e50914; }
+        /* Estilo da Lista (Simples e Limpo - V24 Style) */
+        .item { padding: 14px 20px; border-bottom: 1px solid #1a1a1a; color: #aaa; font-size: 15px; transition: 0.1s; }
+        
+        /* Item Ativo (Selecionado anteriormente) */
+        .item.active { background: #1a1a1a; color: white; border-left: 3px solid #e50914; }
+        
+        /* Item Focado (Onde está o controle agora) */
         .item.focused { 
-            background: #e50914; color: white; font-weight: bold; transform: scale(1.02);
+            background: #e50914; color: white; font-weight: bold; transform: scale(1.01); z-index: 10;
         }
 
-        /* Vídeo */
-        .video-box { flex: 1; position: relative; background: #000; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; background: #000; }
-        
-        /* Barra Info */
-        .info-bar { height: 120px; background: #0a0a0a; padding: 20px; border-top: 2px solid #e50914; }
-        .channel-name { font-size: 24px; font-weight: bold; color: white; }
-        .status-text { font-size: 12px; color: #e50914; margin-top: 5px; font-weight: bold; }
+        /* --- PLAYER --- */
+        .video-box { 
+            width: 100%; height: 50%; /* Tamanho Pequeno (Preview) */
+            background: #000; display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        video { width: 100%; height: 100%; background: #000; object-fit: contain; }
 
-        /* Fullscreen */
+        /* TELA CHEIA REAL (Sem botão voltar visível) */
         .fullscreen-mode {
             position: fixed !important; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 99999; background: black;
         }
-        .fullscreen-mode video { object-fit: fill; } /* Estica imagem */
+        .fullscreen-mode video { object-fit: fill; } /* Estica para preencher */
 
-        /* Overlay Voltar */
-        #backOverlay {
-            position: fixed; top: 20px; left: 20px; background: rgba(0,0,0,0.8);
-            color: white; padding: 10px 20px; border: 2px solid #e50914; border-radius: 5px;
-            z-index: 100000; display: none;
-        }
+        .info-bar { flex: 1; background: #050505; padding: 25px; border-top: 2px solid #e50914; }
+        .chn-title { font-size: 26px; color: white; font-weight: bold; margin-bottom: 10px; }
+        .chn-meta { font-size: 13px; color: #777; line-height: 1.5; }
+
+        /* Loading Spinner */
+        #loader { position: absolute; color: #e50914; display: none; }
 
     </style>
 </head>
@@ -127,155 +113,148 @@
     <div id="loginScreen">
         <div class="login-card">
             <div class="app-logo">IP<span>TV</span></div>
-            
-            <div class="input-group">
-                <input type="text" id="host" placeholder="http://url_do_painel:porta" class="login-input">
-            </div>
-            <div class="input-group">
-                <input type="text" id="user" placeholder="Usuário" class="login-input">
-            </div>
-            <div class="input-group">
-                <input type="password" id="pass" placeholder="Senha" class="login-input">
-            </div>
-
+            <input type="text" id="host" placeholder="URL DNS" class="login-input">
+            <input type="text" id="user" placeholder="Usuário" class="login-input">
+            <input type="password" id="pass" placeholder="Senha" class="login-input">
             <button id="btnLogin" onclick="fazerLogin()" class="login-input btn-login">ENTRAR</button>
-            <div id="loginMsg" style="color:#e50914; margin-top:15px; font-size:12px;"></div>
+            <div id="loginStatus" style="color:#aaa; font-size:12px; margin-top:10px;"></div>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="dash-header">
-            <div class="app-logo" style="font-size:30px;">IP<span>TV</span></div>
-            <div class="user-info">
-                Bem-vindo
-                <strong id="displayUser">Usuario</strong>
-                <span id="displayExp" style="font-size:12px; color:#e50914;">Vence: --/--/----</span>
-            </div>
+            <div class="app-logo" style="font-size:24px;">SMARTERS<span>RED</span></div>
+            <div id="clock" style="color:#ccc; font-weight:bold;">00:00</div>
         </div>
-
         <div class="dash-grid">
-            <div class="dash-card" onclick="abrirLiveTV()" id="cardLive">
-                <i class="fas fa-tv"></i>
-                <span>AO VIVO</span>
+            <div class="dash-card" id="card_0" onclick="abrirLiveTV()">
+                <i class="fas fa-tv"></i> <span>AO VIVO</span>
             </div>
-            <div class="dash-card" onclick="alert('Selecione AO VIVO para testar')" id="cardMovies">
-                <i class="fas fa-film"></i>
-                <span>FILMES</span>
+            <div class="dash-card" id="card_1">
+                <i class="fas fa-film"></i> <span>FILMES</span>
             </div>
-            <div class="dash-card" onclick="alert('Selecione AO VIVO para testar')" id="cardSeries">
-                <i class="fas fa-video"></i>
-                <span>SÉRIES</span>
+            <div class="dash-card" id="card_2">
+                <i class="fas fa-video"></i> <span>SÉRIES</span>
             </div>
         </div>
-        <div style="text-align:center; padding:20px; color:#555; font-size:12px;">V26.0 Optimized Edition</div>
+        <div style="text-align:center; padding:20px; color:#444;">V27 Stable</div>
     </div>
 
-    <div id="liveTvArea" style="display:none;">
+    <div id="liveTvArea">
         <div class="col-cat">
             <div class="list-head">CATEGORIAS</div>
             <div class="scroll-list" id="listCat"></div>
         </div>
         <div class="col-chn">
-            <div class="list-head" id="headChn">CANAIS</div>
+            <div class="list-head" id="headChn">SELECIONE</div>
             <div class="scroll-list" id="listChn"></div>
         </div>
         <div class="col-vid">
             <div class="video-box" id="videoContainer">
-                <div id="backOverlay">⬅ VOLTAR</div>
                 <video id="player" playsinline></video>
-                <div id="loadingIcon" style="position:absolute; color:#e50914; display:none;">
-                    <i class="fas fa-circle-notch fa-spin fa-3x"></i>
-                </div>
+                <div id="loader"><i class="fas fa-circle-notch fa-spin fa-3x"></i></div>
+                <div id="placeholder" style="position:absolute; color:#222;"><i class="fas fa-play-circle fa-5x"></i></div>
             </div>
             <div class="info-bar">
-                <div class="channel-name" id="chnName">Selecione um Canal</div>
-                <div class="status-text" id="chnStatus">Sistema Pronto</div>
-                <div style="color:#666; font-size:12px; margin-top:10px;">
-                    OK 1x: Tocar | OK 2x: Tela Cheia | VOLTAR: Sair
+                <div class="chn-title" id="chnName">Bem-vindo</div>
+                <div class="chn-meta" id="chnInfo">
+                    • <b>OK</b> = Tocar (Preview)<br>
+                    • <b>OK 2x</b> = Tela Cheia (Esticada)<br>
+                    • <b>VOLTAR</b> = Sair da Tela Cheia / Menu
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO ---
+        // CONFIG
         let CONFIG = { host: '', user: '', pass: '' };
         let hls = null;
         let currentChannel = null;
         let isFullscreen = false;
         
-        // Estado da Navegação
-        let screen = 'login'; // login, dash, player
-        let focusIndex = 0; // Índice genérico
-        
-        // Dados
-        let categories = [];
-        let channels = [];
+        // Navegação
+        let screen = 'login';
+        let focusIndex = 0;
+        let colIndex = 0; // 0=Cat, 1=Chn
         let catIndex = 0;
         let chnIndex = 0;
-        let colIndex = 0; // 0=Cat, 1=Chn
+        let categories = [];
+        let channels = [];
+
+        // Relógio
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v26_host')) {
-                document.getElementById('host').value = localStorage.getItem('v26_host');
-                document.getElementById('user').value = localStorage.getItem('v26_user');
-                document.getElementById('pass').value = localStorage.getItem('v26_pass');
+            if(localStorage.getItem('v27_host')) {
+                document.getElementById('host').value = localStorage.getItem('v27_host');
+                document.getElementById('user').value = localStorage.getItem('v27_user');
+                document.getElementById('pass').value = localStorage.getItem('v27_pass');
             }
-            updateFocusLogin();
+            updateFocus();
         }
 
-        // --- SISTEMA DE CONTROLE REMOTO (CÉREBRO) ---
+        // --- CONTROLE REMOTO UNIFICADO ---
         document.addEventListener('keydown', (e) => {
             const k = e.keyCode;
-            
+
+            // 1. TELA CHEIA (Controle Prioritário)
             if(isFullscreen) {
-                // Sair da tela cheia com qualquer botão de navegação ou voltar
-                if([13, 8, 461, 10009, 27, 37, 38, 39, 40].includes(k)) sairTelaCheia();
+                // Voltar, Exit, Backspace, Esc, Setas (para sair emergencialmente)
+                if([8, 461, 10009, 27, 37, 38, 39, 40].includes(k)) sairTelaCheia();
                 return;
             }
 
+            // 2. TELA LOGIN
             if(screen === 'login') {
-                if(k===40) { focusIndex++; if(focusIndex>3) focusIndex=0; updateFocusLogin(); } // Baixo
-                if(k===38) { focusIndex--; if(focusIndex<0) focusIndex=3; updateFocusLogin(); } // Cima
-                if(k===13) { if(focusIndex===3) fazerLogin(); else { focusIndex++; updateFocusLogin(); } } // Enter
-            }
-            
-            else if(screen === 'dash') {
-                if(k===39) { focusIndex++; if(focusIndex>2) focusIndex=0; updateFocusDash(); } // Dir
-                if(k===37) { focusIndex--; if(focusIndex<0) focusIndex=2; updateFocusDash(); } // Esq
-                if(k===13) { // Enter
-                    if(focusIndex===0) abrirLiveTV();
-                    else alert("Funcionalidade em desenvolvimento"); 
+                if(k===40) { focusIndex++; if(focusIndex>3) focusIndex=0; updateFocus(); }
+                if(k===38) { focusIndex--; if(focusIndex<0) focusIndex=3; updateFocus(); }
+                if(k===13) { 
+                    if(focusIndex===3) fazerLogin(); 
+                    else { focusIndex++; updateFocus(); }
                 }
             }
 
-            else if(screen === 'player') {
+            // 3. DASHBOARD
+            else if(screen === 'dash') {
+                if(k===39) { focusIndex++; if(focusIndex>2) focusIndex=0; updateFocus(); }
+                if(k===37) { focusIndex--; if(focusIndex<0) focusIndex=2; updateFocus(); }
+                if(k===13) { if(focusIndex===0) abrirLiveTV(); else alert("Em breve"); }
+            }
+
+            // 4. LIVE TV
+            else if(screen === 'live') {
                 if(k===8 || k===461 || k===10009) { // Voltar
-                    if(colIndex===1) { colIndex=0; updatePlayerFocus(); } // Volta pra categoria
-                    else { screen='dash'; document.getElementById('liveTvArea').style.display='none'; document.getElementById('dashboard').style.display='flex'; pararPlayer(); } // Volta pro dash
+                    if(colIndex===1) { colIndex=0; updateFocus(); }
+                    else { screen='dash'; document.getElementById('liveTvArea').style.display='none'; document.getElementById('dashboard').style.display='flex'; pararPlayer(); }
                 }
-                
                 if(k===38) { // Cima
                     if(colIndex===0 && catIndex>0) catIndex--;
                     if(colIndex===1 && chnIndex>0) chnIndex--;
-                    updatePlayerFocus();
+                    updateFocus();
                 }
                 if(k===40) { // Baixo
-                    if(colIndex===0 && catIndex < categories.length-1) catIndex++;
-                    if(colIndex===1 && chnIndex < channels.length-1) chnIndex++;
-                    updatePlayerFocus();
+                    if(colIndex===0 && catIndex<categories.length-1) catIndex++;
+                    if(colIndex===1 && chnIndex<channels.length-1) chnIndex++;
+                    updateFocus();
                 }
-                if(k===39) { // Direita (Entra nos canais)
-                    if(colIndex===0 && channels.length>0) { colIndex=1; chnIndex=0; updatePlayerFocus(); }
+                if(k===39) { // Dir
+                    if(colIndex===0 && channels.length>0) { colIndex=1; chnIndex=0; updateFocus(); }
                 }
-                if(k===37) { // Esquerda (Volta categorias)
-                    if(colIndex===1) { colIndex=0; updatePlayerFocus(); }
+                if(k===37) { // Esq
+                    if(colIndex===1) { colIndex=0; updateFocus(); }
                 }
                 if(k===13) { // Enter
-                    if(colIndex===0) { // Clicou na categoria
+                    if(colIndex===0) {
+                        // Carrega Categoria
                         carregarCanais(categories[catIndex].category_id);
-                        colIndex=1; // Pula pra direita auto
-                    } else { // Clicou no canal
+                        // Opcional: Auto focar na lista de canais
+                        // colIndex=1; updateFocus(); 
+                    } else {
+                        // Toca Canal
                         const selected = channels[chnIndex];
                         if(currentChannel && currentChannel.stream_id === selected.stream_id) {
                             entrarTelaCheia();
@@ -287,32 +266,28 @@
             }
         });
 
-        // --- FUNÇÕES DE FOCO VISUAL ---
-        function updateFocusLogin() {
-            const els = document.querySelectorAll('.login-input');
-            els.forEach(e => e.classList.remove('focused'));
-            els[focusIndex].classList.add('focused');
-            els[focusIndex].focus();
-        }
-        
-        function updateFocusDash() {
-            const cards = document.querySelectorAll('.dash-card');
-            cards.forEach(c => c.classList.remove('focused'));
-            cards[focusIndex].classList.add('focused');
-        }
+        function updateFocus() {
+            // Remove focos antigos
+            document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
 
-        function updatePlayerFocus() {
-            document.querySelectorAll('.item').forEach(e => e.classList.remove('focused'));
-            if(colIndex===0) { // Categorias
-                const el = document.getElementById('cat_'+catIndex);
-                if(el) { el.classList.add('focused'); el.scrollIntoView({block:'center'}); }
-            } else { // Canais
-                const el = document.getElementById('chn_'+chnIndex);
-                if(el) { el.classList.add('focused'); el.scrollIntoView({block:'center'}); }
+            if(screen === 'login') {
+                const inputs = document.querySelectorAll('.login-input');
+                inputs[focusIndex].classList.add('focused');
+                inputs[focusIndex].focus();
+            } else if(screen === 'dash') {
+                document.getElementById('card_'+focusIndex).classList.add('focused');
+            } else if(screen === 'live') {
+                if(colIndex===0) {
+                    const el = document.getElementById('cat_'+catIndex);
+                    if(el) { el.classList.add('focused'); el.scrollIntoView({block:'center', behavior:'smooth'}); }
+                } else {
+                    const el = document.getElementById('chn_'+chnIndex);
+                    if(el) { el.classList.add('focused'); el.scrollIntoView({block:'center', behavior:'smooth'}); }
+                }
             }
         }
 
-        // --- LÓGICA DE NEGÓCIO ---
+        // --- CONEXÃO ---
         async function fazerLogin() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
@@ -324,10 +299,11 @@
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
             
-            localStorage.setItem('v26_host', h); localStorage.setItem('v26_user', u); localStorage.setItem('v26_pass', p);
-            document.getElementById('loginMsg').innerText = "Validando...";
+            localStorage.setItem('v27_host', h); localStorage.setItem('v27_user', u); localStorage.setItem('v27_pass', p);
+            document.getElementById('loginStatus').innerText = "Conectando...";
 
             try {
+                // Tenta Proxy AllOrigins (Mais compatível)
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`)}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -335,24 +311,37 @@
 
                 if(loginData.user_info && loginData.user_info.auth === 1) {
                     if(loginData.user_info.status === 'Active') {
-                        // Sucesso
-                        document.getElementById('displayUser').innerText = u;
-                        const exp = new Date(parseInt(loginData.user_info.exp_date)*1000);
-                        document.getElementById('displayExp').innerText = "Vence: " + exp.toLocaleDateString('pt-BR');
-                        
                         screen = 'dash';
                         document.getElementById('loginScreen').style.display = 'none';
                         document.getElementById('dashboard').style.display = 'flex';
-                        focusIndex = 0; updateFocusDash();
+                        focusIndex=0; updateFocus();
                         
-                        // Pré-carrega categorias
-                        carregarCategorias();
+                        // Background load
+                        baixarCategorias();
                     } else { throw new Error("Conta Expirada"); }
-                } else { throw new Error("Login Falhou"); }
-            } catch (e) { document.getElementById('loginMsg').innerText = "Erro: Verifique URL/User/Pass"; }
+                } else { throw new Error("Dados Incorretos"); }
+            } catch(e) {
+                // Fallback Direto (Se proxy falhar)
+                tentaDireto();
+            }
         }
 
-        async function carregarCategorias() {
+        async function tentaDireto() {
+            try {
+                const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if(data.user_info.auth === 1) {
+                    screen = 'dash';
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'flex';
+                    focusIndex=0; updateFocus();
+                    baixarCategorias();
+                }
+            } catch(e) { document.getElementById('loginStatus').innerText = "Erro Conexão"; }
+        }
+
+        async function baixarCategorias() {
             try {
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`)}`;
                 const res = await fetch(url);
@@ -362,28 +351,27 @@
         }
 
         function abrirLiveTV() {
-            screen = 'player';
+            screen = 'live';
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('liveTvArea').style.display = 'flex';
             
-            // Renderiza categorias
             const list = document.getElementById('listCat');
             list.innerHTML = "";
             categories.forEach((cat, idx) => {
                 const div = document.createElement('div');
                 div.className = 'item';
-                div.id = 'cat_' + idx;
+                div.id = 'cat_'+idx;
                 div.innerText = cat.category_name;
-                div.onclick = () => { catIndex=idx; colIndex=0; updatePlayerFocus(); carregarCanais(cat.category_id); };
+                div.onclick = () => { catIndex=idx; colIndex=0; updateFocus(); carregarCanais(cat.category_id); };
                 list.appendChild(div);
             });
-            colIndex=0; catIndex=0; updatePlayerFocus();
+            colIndex=0; catIndex=0; updateFocus();
         }
 
-        async function carregarCanais(catId) {
-            document.getElementById('listChn').innerHTML = "<div style='padding:10px; color:#aaa;'>Carregando...</div>";
+        async function carregarCanais(id) {
+            document.getElementById('listChn').innerHTML = "<div style='padding:10px'>Carregando...</div>";
             try {
-                const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${catId}`)}`;
+                const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${id}`)}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 channels = JSON.parse(data.contents);
@@ -393,65 +381,55 @@
                 channels.forEach((ch, idx) => {
                     const div = document.createElement('div');
                     div.className = 'item';
-                    div.id = 'chn_' + idx;
+                    div.id = 'chn_'+idx;
                     div.innerText = ch.name;
-                    div.onclick = () => { chnIndex=idx; colIndex=1; updatePlayerFocus(); tocarCanal(ch); };
+                    div.onclick = () => { chnIndex=idx; colIndex=1; updateFocus(); tocarCanal(ch); };
                     list.appendChild(div);
                 });
-                // Auto move foco
-                colIndex = 1; chnIndex = 0; updatePlayerFocus();
-            } catch(e) { document.getElementById('listChn').innerHTML = "Erro."; }
+            } catch(e) { document.getElementById('listChn').innerHTML = "Erro"; }
         }
 
-        // --- PLAYER ULTRA OTIMIZADO (LOW MEMORY) ---
+        // --- PLAYER ESTÁVEL (Anti-Travamento V3) ---
         function tocarCanal(ch) {
             currentChannel = ch;
             document.getElementById('chnName').innerText = ch.name;
-            document.getElementById('loadingIcon').style.display = 'block';
-            document.getElementById('chnStatus').innerText = "Conectando...";
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('placeholder').style.display = 'none';
             
             const video = document.getElementById('player');
             const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
 
-            // GHOST KILL: Mata conexão anterior
+            // Hard Reset para matar conexão anterior
             if(hls) { hls.destroy(); hls = null; }
             video.pause();
             video.removeAttribute('src'); 
             video.load();
 
-            if(Hls.isSupported()) {
+            if (Hls.isSupported()) {
                 hls = new Hls({
-                    // CONFIGURAÇÃO ULTRA LEVE PARA NÃO TRAVAR
-                    maxBufferLength: 10, // Buffer minúsculo para economizar RAM
-                    maxMaxBufferLength: 20, 
+                    // BUFFER ROBUSTO:
+                    maxBufferLength: 30, // 30s de reserva (bom equilíbrio)
+                    maxMaxBufferLength: 60,
                     enableWorker: true,
-                    startLevel: -1,
-                    manifestLoadingTimeOut: 15000,
+                    // Recuperação de Rede
+                    manifestLoadingTimeOut: 20000,
+                    levelLoadingTimeOut: 20000,
                 });
-                
                 hls.loadSource(streamUrl);
                 hls.attachMedia(video);
-                
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.play().catch(()=>{});
-                    document.getElementById('loadingIcon').style.display = 'none';
-                    document.getElementById('chnStatus').innerText = "Reproduzindo";
+                    document.getElementById('loader').style.display = 'none';
                 });
-
-                // Recuperação de Erro Automática
                 hls.on(Hls.Events.ERROR, (e, data) => {
                     if(data.fatal) {
                         switch(data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:
-                                hls.startLoad(); // Tenta de novo
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                hls.recoverMediaError(); // Tenta arrumar o codec
+                                hls.startLoad(); // Tenta reconectar sozinho
                                 break;
                             default:
                                 hls.destroy();
-                                // Fallback Nativo
-                                video.src = streamUrl; 
+                                video.src = streamUrl; // Tenta nativo
                                 video.play();
                                 break;
                         }
@@ -460,7 +438,7 @@
             } else {
                 video.src = streamUrl;
                 video.play();
-                document.getElementById('loadingIcon').style.display = 'none';
+                document.getElementById('loader').style.display = 'none';
             }
         }
 
@@ -475,14 +453,12 @@
             const container = document.getElementById('videoContainer');
             if(container.requestFullscreen) container.requestFullscreen().catch(()=>{});
             container.classList.add('fullscreen-mode');
-            document.getElementById('backOverlay').style.display = 'block';
             isFullscreen = true;
         }
 
         function sairTelaCheia() {
             if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
             document.getElementById('videoContainer').classList.remove('fullscreen-mode');
-            document.getElementById('backOverlay').style.display = 'none';
             isFullscreen = false;
         }
     </script>
