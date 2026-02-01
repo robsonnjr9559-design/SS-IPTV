@@ -4,30 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>TV Box V14 Player Pro</title>
+    <title>TV Box V15 Híbrida</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- ESTILO VISUAL V13 (MANTIDO) --- */
+        /* --- ESTILO VISUAL (AZUL/VERMELHO - MANTIDO) --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
-            background-color: #111422; color: #e5e5e5; font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #111422; color: #e5e5e5; font-family: 'Segoe UI', sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
         /* LOGIN */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0f1219; z-index: 2000; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center;
+            background: #0f1219; z-index: 2000; display: flex; justify-content: center; align-items: center;
         }
         .login-box {
             background: #1c2235; padding: 40px; border-radius: 8px; border: 1px solid #333;
-            width: 450px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            width: 450px; text-align: center;
         }
-        .login-box h2 { color: #ff3b3b; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; }
+        .login-box h2 { color: #ff3b3b; margin-bottom: 20px; font-weight: bold; }
         .login-box input {
             width: 100%; padding: 12px; margin: 8px 0; background: #111422;
             border: 1px solid #333; color: white; border-radius: 5px; text-align: center; font-size: 16px;
@@ -36,13 +35,8 @@
             width: 100%; padding: 15px; margin-top: 20px; background: #ff3b3b;
             color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 16px;
         }
-        #consoleLog {
-            margin-top: 20px; width: 450px; height: 80px; background: #000; 
-            color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; 
-            overflow-y: auto; text-align: left; border: 1px solid #333; display: none;
-        }
 
-        /* APP */
+        /* APP LAYOUT */
         #app { display: none; height: 100%; flex-direction: column; }
 
         .navbar {
@@ -75,20 +69,30 @@
         .chn-item { display: flex; justify-content: space-between; font-size: 14px; color: #aaa; }
         .chn-item.active { background: rgba(255, 59, 59, 0.15); border: 1px solid #ff3b3b; }
 
-        /* PLAYER AREA */
+        /* PLAYER AREA CORRIGIDA */
         .video-wrapper {
             width: 100%; height: 50%; background: #000; position: relative;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; /* Indica que é clicável */
         }
         
-        video { width: 100%; height: 100%; object-fit: contain; background: #000; }
-        
-        /* Mensagem de Tela Cheia */
-        .dbl-click-hint {
-            position: absolute; top: 10px; right: 10px; 
-            background: rgba(0,0,0,0.5); color: white; padding: 5px 10px; 
-            border-radius: 4px; font-size: 10px; pointer-events: none; opacity: 0.7;
+        video { width: 100%; height: 100%; background: #000; }
+
+        /* Botão Play Overlay (Para TVs que bloqueiam autoplay) */
+        #playOverlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 10;
+        }
+        #playBtn {
+            font-size: 60px; color: white; opacity: 0.8; transition: transform 0.2s;
+        }
+        #playOverlay:hover #playBtn { transform: scale(1.1); opacity: 1; }
+
+        /* Log de Erro Visual */
+        #errorLog {
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            background: rgba(255,0,0,0.8); color: white; font-size: 12px; padding: 5px;
+            border-radius: 4px; display: none; z-index: 20; text-align: center;
         }
 
         .info-wrapper { flex: 1; padding: 25px; background: linear-gradient(#161b2e, #0d101b); }
@@ -101,18 +105,18 @@
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2><i class="fas fa-play-circle"></i> V14 Player</h2>
+            <h2><i class="fas fa-tv"></i> TV BOX V15</h2>
             <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
-            <button onclick="iniciarConexaoSmart()">ENTRAR</button>
+            <button onclick="conectar()">ENTRAR</button>
+            <div id="loginStatus" style="margin-top:10px; color:yellow;"></div>
         </div>
-        <div id="consoleLog"></div>
     </div>
 
     <div id="app">
         <div class="navbar">
-            <div class="nav-brand">TV PLAYER PRO</div>
+            <div class="nav-brand">SKY BOX TV</div>
             <div class="clock" id="clock">00:00</div>
         </div>
 
@@ -128,12 +132,17 @@
             </div>
 
             <div class="col-prv">
-                <div class="video-wrapper" id="videoContainer" ondblclick="toggleFullScreen()">
-                    <div class="dbl-click-hint">Duplo clique para Tela Cheia</div>
-                    <video id="player" controls autoplay playsinline></video>
+                <div class="video-wrapper" ondblclick="toggleFullScreen()">
+                    <div id="errorLog"></div>
+                    
+                    <div id="playOverlay" onclick="tentarPlayManual()">
+                        <i class="fas fa-play-circle" id="playBtn"></i>
+                    </div>
+
+                    <video id="player" playsinline preload="auto"></video>
                     
                     <div id="placeholder" style="position:absolute; color:#333; text-align:center;">
-                        <i class="fas fa-tv fa-4x"></i><br>Selecione um canal
+                        <i class="fas fa-tv fa-4x"></i><br>Selecione um Canal
                     </div>
                 </div>
                 
@@ -141,12 +150,9 @@
                     <div class="info-title" id="infoTitle">Bem-vindo</div>
                     <div style="margin-bottom:15px;">
                         <span class="tag" id="statusTag">AGUARDANDO</span>
+                        <span style="font-size:12px; color:#aaa; margin-left:10px;">Duplo clique para Tela Cheia</span>
                     </div>
-                    <div style="color:#aaa; font-size:13px; line-height:1.6;" id="infoDesc">
-                        Este player foi otimizado para compatibilidade máxima.<br>
-                        Se a imagem não aparecer em 5 segundos, tente outro canal.<br><br>
-                        <b>Dica:</b> Dê 2 cliques rápidos no vídeo para Tela Cheia.
-                    </div>
+                    <div style="color:#aaa; font-size:13px;" id="techInfo"></div>
                 </div>
             </div>
         </div>
@@ -155,7 +161,7 @@
     <script>
         let CONFIG = { host: '', user: '', pass: '' };
         let hls = null;
-        let activeProxy = '';
+        let currentChannel = null;
 
         // Relógio
         setInterval(() => {
@@ -164,92 +170,58 @@
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v14_host')) {
-                document.getElementById('host').value = localStorage.getItem('v14_host');
-                document.getElementById('user').value = localStorage.getItem('v14_user');
-                document.getElementById('pass').value = localStorage.getItem('v14_pass');
+            if(localStorage.getItem('v15_host')) {
+                document.getElementById('host').value = localStorage.getItem('v15_host');
+                document.getElementById('user').value = localStorage.getItem('v15_user');
+                document.getElementById('pass').value = localStorage.getItem('v15_pass');
             }
         }
 
-        function log(msg) {
-            const el = document.getElementById('consoleLog');
-            el.style.display = 'block';
-            el.innerHTML += `> ${msg}<br>`;
-            el.scrollTop = el.scrollHeight;
-        }
-
-        // --- CONEXÃO INTELIGENTE V13 (Mantida) ---
-        async function iniciarConexaoSmart() {
+        // --- LOGIN V13 SIMPLIFICADO ---
+        async function conectar() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
-
+            
             if(!h || !u || !p) return alert("Preencha tudo!");
 
             let cleanHost = h.startsWith('http') ? h : 'http://' + h;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
-
             CONFIG = { host: cleanHost, user: u, pass: p };
-            localStorage.setItem('v14_host', h);
-            localStorage.setItem('v14_user', u);
-            localStorage.setItem('v14_pass', p);
+            
+            localStorage.setItem('v15_host', h); localStorage.setItem('v15_user', u); localStorage.setItem('v15_pass', p);
 
-            document.getElementById('consoleLog').innerHTML = ""; 
-            log("Conectando...");
+            document.getElementById('loginStatus').innerText = "Conectando...";
 
             // Tenta Direto
             try {
                 const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
-                await testarConexao(url);
-                log("Conexão Direta OK!");
-                return; 
-            } catch (e) { log("Falha Direta. Tentando Proxy..."); }
-
-            // Tenta Proxy AllOrigins
-            try {
-                const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
-                const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-                await testarConexao(proxyUrl, true);
-                activeProxy = 'allorigins';
-                log("Conexão Proxy OK!");
-                return;
-            } catch (e) { 
-                log("ERRO FATAL: Não foi possível conectar.");
-                log("Verifique se o servidor está online.");
+                const res = await fetch(url);
+                const data = await res.json();
+                iniciarApp(Array.isArray(data) ? data : Object.values(data));
+            } catch (e) {
+                // Tenta Proxy se direto falhar
+                try {
+                    const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const lista = JSON.parse(data.contents);
+                    iniciarApp(Array.isArray(lista) ? lista : Object.values(lista));
+                } catch (err) {
+                    alert("Erro ao conectar. Verifique se o servidor está online.");
+                }
             }
         }
 
-        async function testarConexao(url, isJsonWrap = false) {
-            const res = await fetch(url);
-            if(!res.ok) throw new Error("Erro HTTP");
-            let data = await res.json();
-            if(isJsonWrap) data = JSON.parse(data.contents);
-            
-            let lista = [];
-            if(Array.isArray(data)) lista = data;
-            else if(typeof data === 'object') lista = Object.values(data);
-
-            if(lista.length > 0) abrirApp(lista);
-            else throw new Error("Lista vazia");
-        }
-
-        function construirUrl(action, params) {
-            let base = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=${action}${params}`;
-            if(activeProxy === 'allorigins') return 'https://api.allorigins.win/get?url=' + encodeURIComponent(base);
-            return base;
-        }
-
-        function abrirApp(categorias) {
+        function iniciarApp(cats) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
-            
             const list = document.getElementById('listCat');
             list.innerHTML = "";
-
-            categorias.forEach(cat => {
+            cats.forEach(cat => {
                 const div = document.createElement('div');
                 div.className = 'item';
-                div.innerText = cat.category_name || "Geral";
+                div.innerText = cat.category_name;
                 div.onclick = () => {
                     document.querySelectorAll('.col-cat .item').forEach(e => e.classList.remove('active'));
                     div.classList.add('active');
@@ -259,107 +231,129 @@
             });
         }
 
-        async function carregarCanais(catId, catName) {
-            document.getElementById('headerChn').innerText = catName;
+        async function carregarCanais(id, name) {
+            document.getElementById('headerChn').innerText = name;
             const list = document.getElementById('listChn');
             list.innerHTML = "<div style='padding:15px'>Carregando...</div>";
 
             try {
-                let url = construirUrl('get_live_streams', `&category_id=${catId}`);
+                // Tenta buscar canais via Proxy (mais garantido para listar)
+                const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${id}`)}`;
                 const res = await fetch(url);
-                let data = await res.json();
-                if(activeProxy === 'allorigins') data = JSON.parse(data.contents);
+                const data = await res.json();
+                const channels = JSON.parse(data.contents);
 
                 list.innerHTML = "";
-                if(!data.length) { list.innerHTML = "Vazio"; return; }
-
-                data.forEach(ch => {
+                channels.forEach(ch => {
                     const div = document.createElement('div');
                     div.className = 'chn-item';
                     div.innerHTML = `<span>${ch.name}</span>`;
                     div.onclick = () => {
                         document.querySelectorAll('.chn-item').forEach(e => e.classList.remove('active'));
                         div.classList.add('active');
-                        tocarCanal(ch);
+                        prepararPlayer(ch);
                     };
                     list.appendChild(div);
                 });
-            } catch (e) { list.innerHTML = "Erro ao carregar canais."; }
+            } catch (e) { list.innerHTML = "Erro ao listar canais."; }
         }
 
-        // --- SISTEMA DE PLAYER V14 (OTIMIZADO) ---
-        function tocarCanal(ch) {
+        // --- MOTOR DE VÍDEO HÍBRIDO V15 ---
+        function prepararPlayer(ch) {
+            currentChannel = ch;
             const video = document.getElementById('player');
             document.getElementById('placeholder').style.display = 'none';
             document.getElementById('infoTitle').innerText = ch.name;
+            document.getElementById('errorLog').style.display = 'none';
+            document.getElementById('playOverlay').style.display = 'none';
             
-            updateStatus("CARREGANDO...", "#ffff00");
+            setStatus("CARREGANDO...", "#ffff00");
 
-            // URL do Stream Direto
-            const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
+            // TENTATIVA 1: HLS (.m3u8) - Padrão moderno
+            const hlsUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
+            const tsUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.ts`;
 
-            if(hls) {
-                hls.destroy();
-                hls = null;
-            }
+            if(hls) { hls.destroy(); hls = null; }
 
-            // ESTRATÉGIA 1: HLS.js Otimizado para TV Antiga
             if (Hls.isSupported()) {
-                console.log("Tentando HLS.js...");
+                console.log("Tentando HLS...");
                 hls = new Hls({
-                    enableWorker: true, // Usa processamento paralelo se possível
-                    lowLatencyMode: false, // Desativa baixa latência (trava menos em TV velha)
-                    backBufferLength: 90
+                    enableWorker: true,
+                    lowLatencyMode: false
                 });
                 
-                hls.loadSource(streamUrl);
+                hls.loadSource(hlsUrl);
                 hls.attachMedia(video);
                 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(e => console.log("Autoplay bloqueado: interagiu?"));
-                    updateStatus("REPRODUZINDO (HLS)", "#0f0");
+                    var playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => setStatus("REPRODUZINDO (HLS)", "#0f0"))
+                        .catch(error => mostrarPlayManual("Autoplay Bloqueado"));
+                    }
                 });
 
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
-                        console.warn("HLS Falhou. Tentando Nativo...");
+                        console.warn("HLS falhou. Tentando TS...");
                         hls.destroy();
-                        tentarNativo(video, streamUrl); // Fallback
+                        // TENTATIVA 2: MODO LEGADO (MPEG-TS)
+                        tentarModoTS(video, tsUrl);
                     }
                 });
 
             } else {
-                // ESTRATÉGIA 2: Player Nativo (Para TVs Smart antigas que não aceitam MSE)
-                tentarNativo(video, streamUrl);
+                // Para Safari/iOS ou TVs nativas
+                video.src = hlsUrl;
+                video.play().catch(e => mostrarPlayManual("Toque para Iniciar"));
             }
         }
 
-        function tentarNativo(video, url) {
-            updateStatus("MUDANDO PARA MODO NATIVO...", "#00a8ff");
+        function tentarModoTS(video, url) {
+            setStatus("MUDANDO PARA MODO TS...", "#00a8ff");
+            document.getElementById('techInfo').innerText = "Tentando formato .TS (Modo Compatibilidade)";
+            
             video.src = url;
             video.load();
-            video.play()
-                .then(() => updateStatus("REPRODUZINDO (NATIVO)", "#0f0"))
-                .catch(e => updateStatus("ERRO: CODEC NÃO SUPORTADO", "#f00"));
+            
+            var playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise
+                .then(_ => setStatus("REPRODUZINDO (TS)", "#0f0"))
+                .catch(error => {
+                    console.error(error);
+                    // Se der erro aqui, é bloqueio de Mixed Content
+                    setStatus("ERRO DE SEGURANÇA", "#f00");
+                    document.getElementById('errorLog').style.display = 'block';
+                    document.getElementById('errorLog').innerText = "Erro: A TV bloqueou o vídeo por não ser HTTPS. Tente usar 'http://' no navegador se possível.";
+                });
+            }
         }
 
-        function updateStatus(texto, cor) {
+        function mostrarPlayManual(motivo) {
+            document.getElementById('playOverlay').style.display = 'flex';
+            setStatus("PAUSADO (" + motivo + ")", "#orange");
+        }
+
+        function tentarPlayManual() {
+            const video = document.getElementById('player');
+            document.getElementById('playOverlay').style.display = 'none';
+            video.play();
+        }
+
+        function setStatus(texto, cor) {
             const el = document.getElementById('statusTag');
             el.innerText = texto;
             el.style.backgroundColor = cor;
             el.style.color = (cor === '#ffff00') ? '#000' : '#fff';
         }
 
-        // --- FUNÇÃO TELA CHEIA (DUPLO CLIQUE) ---
         function toggleFullScreen() {
-            const container = document.getElementById('videoContainer');
-            const video = document.getElementById('player');
-
+            const container = document.getElementById('app'); 
+            // Algumas TVs preferem fullscreen no body ou container principal
             if (!document.fullscreenElement) {
-                // Tenta colocar o container em fullscreen (se falhar, tenta o vídeo)
                 if (container.requestFullscreen) container.requestFullscreen();
-                else if (video.requestFullscreen) video.requestFullscreen();
-                else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen(); // iOS/Safari antigo
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
             } else {
                 if (document.exitFullscreen) document.exitFullscreen();
             }
