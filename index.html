@@ -3,116 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TV Box Pro V10</title>
+    <title>TV Box Ultimate V11</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- RESET E BASE --- */
+        /* --- ESTILOS VISUAIS (MANTIDO O AZUL/VERMELHO DA FOTO) --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
-            background-color: #111422; /* Fundo Azul Escuro das fotos */
-            color: #e5e5e5;
-            font-family: 'Segoe UI', sans-serif;
+            background-color: #111422; /* Fundo Azul Escuro */
+            color: #e5e5e5; font-family: 'Segoe UI', sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- TELA DE LOGIN (MANTIDA POIS FUNCIONA) --- */
+        /* TELA DE LOGIN */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f1219; z-index: 2000; display: flex; justify-content: center; align-items: center;
         }
         .login-box {
             background: #1c2235; padding: 40px; border-radius: 10px; border: 1px solid #333;
-            width: 400px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            width: 420px; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
         .login-box h2 { color: #ff3b3b; margin-bottom: 20px; font-weight: bold; }
         .login-box input {
             width: 100%; padding: 15px; margin: 10px 0; background: #111422;
-            border: 1px solid #333; color: white; border-radius: 5px; text-align: center;
+            border: 1px solid #333; color: white; border-radius: 5px; text-align: center; font-size: 16px;
         }
         .login-box button {
             width: 100%; padding: 15px; margin-top: 20px; background: #ff3b3b;
-            color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 5px;
+            color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 16px;
+        }
+        .login-box button:hover { background: #ff5252; }
+
+        /* BARRA DE STATUS (DEBUG) */
+        #statusOverlay {
+            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
+            padding: 10px; border-radius: 5px; font-size: 12px; color: yellow; display: none; z-index: 3000;
         }
 
-        /* --- BARRA SUPERIOR (NAVBAR) --- */
+        /* --- LAYOUT PRINCIPAL --- */
+        #app { display: none; height: 100%; flex-direction: column; }
+
         .navbar {
             height: 60px; background: #1c2235; display: flex; align-items: center; 
             padding: 0 20px; border-bottom: 2px solid #ff3b3b; justify-content: space-between;
         }
-        .nav-left { display: flex; gap: 30px; font-size: 16px; font-weight: bold; }
-        .nav-item { cursor: pointer; color: #aaa; display: flex; align-items: center; gap: 8px;}
-        .nav-item.active { color: white; }
-        .nav-item i { font-size: 18px; }
-        .clock { font-size: 20px; font-weight: bold; color: #fff; }
+        .nav-brand { font-size: 20px; font-weight: bold; color: white; display: flex; align-items: center; gap: 10px; }
+        .clock { font-size: 18px; font-weight: bold; color: #fff; }
 
-        /* --- LAYOUT PRINCIPAL (3 COLUNAS) --- */
-        .main-layout {
-            display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden;
-        }
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
 
-        /* COLUNA 1: CATEGORIAS (Esquerda) */
+        /* COLUNA 1: CATEGORIAS */
         .col-categories {
-            width: 25%; background: #161b2e; border-right: 1px solid #2a324b;
-            display: flex; flex-direction: column;
+            width: 25%; background: #161b2e; border-right: 1px solid #2a324b; display: flex; flex-direction: column;
         }
-        .cat-header { padding: 15px; background: #1c2235; font-weight: bold; color: #aaa; font-size: 14px;}
-        .cat-list { overflow-y: auto; flex: 1; }
+        .list-header { padding: 15px; background: #1c2235; font-weight: bold; color: #888; font-size: 13px; letter-spacing: 1px;}
+        .scroll-list { overflow-y: auto; flex: 1; }
         
         .cat-item {
-            padding: 15px 20px; cursor: pointer; font-size: 14px; color: #ccc;
+            padding: 15px 20px; cursor: pointer; font-size: 15px; color: #ccc;
             border-bottom: 1px solid #1f263e; transition: 0.2s;
         }
         .cat-item:hover { background: #1f263e; color: white; }
-        /* O Destaque Vermelho da Foto */
         .cat-item.active { 
-            background: #ff3b3b; color: white; font-weight: bold; 
-            border-left: 5px solid white;
+            background: #ff3b3b; color: white; font-weight: bold; border-left: 5px solid white;
         }
 
-        /* COLUNA 2: CANAIS (Meio) */
+        /* COLUNA 2: CANAIS */
         .col-channels {
-            width: 35%; background: #111422; border-right: 1px solid #2a324b;
-            display: flex; flex-direction: column;
+            width: 35%; background: #111422; border-right: 1px solid #2a324b; display: flex; flex-direction: column;
         }
-        .chan-list { overflow-y: auto; flex: 1; }
-        
         .chan-item {
-            padding: 15px 20px; cursor: pointer; font-size: 14px; color: #ccc;
+            padding: 12px 20px; cursor: pointer; font-size: 14px; color: #ccc;
             border-bottom: 1px solid #1f263e; display: flex; justify-content: space-between;
         }
         .chan-item:hover { background: #1f263e; }
         .chan-item.active { 
-            background: rgba(255, 59, 59, 0.2); 
-            border: 1px solid #ff3b3b; color: white; 
+            background: rgba(255, 59, 59, 0.15); border: 1px solid #ff3b3b; color: white; font-weight: bold;
         }
 
-        /* COLUNA 3: PREVIEW E INFO (Direita) */
+        /* COLUNA 3: PREVIEW */
         .col-preview {
             width: 40%; background: #0d101b; display: flex; flex-direction: column;
         }
-        
-        /* Área do Vídeo (Topo Direita) */
-        .video-container {
+        .video-box {
             width: 100%; height: 50%; background: #000; position: relative;
             display: flex; align-items: center; justify-content: center;
         }
         video { width: 100%; height: 100%; }
-        .placeholder-icon { font-size: 80px; color: #333; }
-
-        /* Área de Informações (Baixo Direita - EPG) */
-        .info-container {
-            flex: 1; padding: 20px; overflow-y: auto;
-            background: linear-gradient(to bottom, #161b2e, #0d101b);
+        
+        .info-box {
+            flex: 1; padding: 25px; background: linear-gradient(to bottom, #161b2e, #0d101b); overflow-y: auto;
         }
-        .program-title { font-size: 22px; font-weight: bold; color: #ff3b3b; margin-bottom: 10px; }
-        .program-time { font-size: 16px; color: #fff; margin-bottom: 15px; display: inline-block; background: #333; padding: 5px 10px; border-radius: 4px;}
-        .program-desc { font-size: 14px; color: #aaa; line-height: 1.5; }
-
-        /* Barra de Progresso do Programa */
-        .progress-bg { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-bottom: 20px; }
-        .progress-bar { width: 40%; height: 100%; background: #ff3b3b; border-radius: 3px; }
+        .prog-title { font-size: 24px; font-weight: bold; color: #ff3b3b; margin-bottom: 10px; }
+        .prog-meta { font-size: 14px; color: #aaa; margin-bottom: 20px; background: #222; display: inline-block; padding: 5px 10px; border-radius: 4px;}
+        .prog-desc { font-size: 14px; color: #ccc; line-height: 1.6; }
 
     </style>
 </head>
@@ -120,77 +106,69 @@
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2>XC TV PLAYER</h2>
+            <h2><i class="fas fa-tv"></i> TV BOX PRO</h2>
             <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
-            <button onclick="fazerLogin()">CONECTAR</button>
-            <div id="statusMsg" style="margin-top:15px; color:#aaa; font-size:12px;"></div>
+            <button onclick="tentarConexao()">CONECTAR</button>
+            <div id="loginStatus" style="margin-top:15px; color:#aaa; font-size:13px;"></div>
         </div>
     </div>
 
-    <div id="app" style="display:none;">
+    <div id="app">
         <div class="navbar">
-            <div class="nav-left">
-                <div class="nav-item active"><i class="fas fa-home"></i> INICIO</div>
-                <div class="nav-item"><i class="fas fa-tv"></i> TV</div>
-                <div class="nav-item"><i class="fas fa-film"></i> FILMES</div>
-                <div class="nav-item"><i class="fas fa-video"></i> SÉRIES</div>
-            </div>
+            <div class="nav-brand"><i class="fas fa-satellite-dish"></i> SKY BOX TV</div>
             <div class="clock" id="clock">00:00</div>
         </div>
 
         <div class="main-layout">
-            
             <div class="col-categories">
-                <div class="cat-header">LISTA DE CATEGORIAS</div>
-                <div class="cat-list" id="catList">
-                    </div>
+                <div class="list-header">GRUPOS DE CANAIS</div>
+                <div class="scroll-list" id="catList"></div>
             </div>
 
             <div class="col-channels">
-                <div class="cat-header" id="channelHeader">SELECIONE UMA CATEGORIA</div>
-                <div class="chan-list" id="chanList">
-                    </div>
+                <div class="list-header" id="channelHeader">SELECIONE UMA CATEGORIA</div>
+                <div class="scroll-list" id="chanList"></div>
             </div>
 
             <div class="col-preview">
-                <div class="video-container">
+                <div class="video-box">
                     <video id="videoPlayer" controls autoplay></video>
-                    <div id="videoPlaceholder" style="position:absolute; display:flex; flex-direction:column; align-items:center;">
-                        <i class="fas fa-tv placeholder-icon"></i>
-                        <span style="color:#444; margin-top:10px;">Preview</span>
+                    <div id="placeholder" style="position:absolute; color:#333; text-align:center;">
+                        <i class="fas fa-play-circle fa-4x"></i><br><br>Preview
                     </div>
                 </div>
-                
-                <div class="info-container">
-                    <div class="program-title" id="infoTitle">Bem-vindo</div>
-                    <div class="progress-bg"><div class="progress-bar" style="width:0%"></div></div>
-                    <div class="program-time" id="infoTime">--:--</div>
-                    <div class="program-desc" id="infoDesc">
-                        Selecione um canal na lista para começar a assistir.
-                        <br><br>
-                        Use as setas do controle para navegar.
+                <div class="info-box">
+                    <div class="prog-title" id="infoTitle">Bem-vindo</div>
+                    <div class="prog-meta" id="infoMeta">Sistema Pronto</div>
+                    <div class="prog-desc" id="infoDesc">
+                        Seu sistema foi atualizado para o modo Híbrido (API + M3U).
+                        Isso garante que a lista apareça mesmo se o servidor bloquear o menu rápido.
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
+    <div id="statusOverlay"></div>
+
     <script>
-        // --- VARIÁVEIS ---
+        // CONFIG
         let CONFIG = { host: '', user: '', pass: '' };
-        let PROXY = "https://corsproxy.io/?";
-        let hls = null;
+        const PROXY = "https://corsproxy.io/?";
         
+        // DADOS (Modo M3U)
+        let m3uCategories = {}; 
+        let currentMode = 'API'; // API ou M3U
+        let hls = null;
+
         // Relógio
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
         }, 1000);
 
-        // Carregar Login Salvo
+        // Carregar salvos
         window.onload = () => {
             if(localStorage.getItem('tv_host')) {
                 document.getElementById('host').value = localStorage.getItem('tv_host');
@@ -199,142 +177,222 @@
             }
         }
 
-        // --- LOGIN BLINDADO (Igual V7 que funciona) ---
-        function fazerLogin() {
+        function showStatus(msg) {
+            const el = document.getElementById('loginStatus');
+            el.innerText = msg;
+            
+            // Log na tela para debug
+            const overlay = document.getElementById('statusOverlay');
+            overlay.style.display = 'block';
+            overlay.innerText = msg;
+        }
+
+        function tentarConexao() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
-            const msg = document.getElementById('statusMsg');
 
-            if(!h || !u || !p) return alert("Preencha todos os campos");
+            if(!h || !u || !p) return alert("Preencha todos os campos!");
 
-            // Limpeza URL
             let cleanHost = h.startsWith('http') ? h : 'http://' + h;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
 
             CONFIG = { host: cleanHost, user: u, pass: p };
-            
-            // Salvar
             localStorage.setItem('tv_host', h);
             localStorage.setItem('tv_user', u);
             localStorage.setItem('tv_pass', p);
 
-            msg.innerText = "Conectando ao servidor...";
+            showStatus("Tentando Método 1 (API Rápida)...");
 
-            // Teste API
-            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`;
+            // Tenta API primeiro
+            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
             
             fetch(PROXY + encodeURIComponent(url))
                 .then(res => res.json())
                 .then(data => {
-                    if(data.user_info && data.user_info.auth === 1) {
-                        msg.style.color = "#4cd137";
-                        msg.innerText = "Sucesso! Carregando...";
-                        setTimeout(iniciarApp, 1000);
+                    if(Array.isArray(data) && data.length > 0) {
+                        showStatus("Sucesso API! Abrindo...");
+                        currentMode = 'API';
+                        iniciarApp(data);
                     } else {
-                        throw new Error("Login Recusado");
+                        throw new Error("Lista vazia na API");
                     }
                 })
                 .catch(err => {
-                    msg.style.color = "red";
-                    msg.innerText = "Erro: " + err.message;
-                    // Fallback de emergência (se API falhar mas dados estiverem certos)
-                    if(confirm("Erro de validação API. Tentar forçar a entrada?")) {
-                        iniciarApp();
-                    }
+                    console.log(err);
+                    showStatus("Método 1 falhou. Ativando Método 2 (Baixando Lista Completa)...");
+                    baixarListaM3U(); // FALLBACK: Ativa modo de compatibilidade
                 });
         }
 
-        function iniciarApp() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            carregarCategorias();
-        }
-
-        // --- CARREGAR CATEGORIAS (COLUNA 1) ---
-        function carregarCategorias() {
-            const list = document.getElementById('catList');
-            list.innerHTML = "<div style='padding:20px'>Carregando...</div>";
-
-            const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
-
-            fetch(PROXY + encodeURIComponent(url))
-                .then(res => res.json())
-                .then(data => {
-                    list.innerHTML = "";
-                    if(!data.length) { list.innerHTML = "Lista Vazia"; return; }
-                    
-                    data.forEach(cat => {
-                        const div = document.createElement('div');
-                        div.className = 'cat-item';
-                        div.innerText = cat.category_name;
-                        div.onclick = () => {
-                            // Visual Ativo
-                            document.querySelectorAll('.cat-item').forEach(e => e.classList.remove('active'));
-                            div.classList.add('active');
-                            // Carregar Canais
-                            carregarCanais(cat.category_id, cat.category_name);
-                        };
-                        list.appendChild(div);
-                    });
-                })
-                .catch(err => list.innerHTML = "Erro ao baixar lista");
-        }
-
-        // --- CARREGAR CANAIS (COLUNA 2) ---
-        function carregarCanais(catId, catName) {
-            const list = document.getElementById('chanList');
-            const header = document.getElementById('channelHeader');
+        // --- MODO COMPATIBILIDADE (O SEGREDO PARA RESOLVER O ERRO "VAZIO") ---
+        function baixarListaM3U() {
+            // URL para baixar a lista inteira
+            const url = `${CONFIG.host}/get.php?username=${CONFIG.user}&password=${CONFIG.pass}&type=m3u_plus&output=ts`;
             
-            header.innerText = catName.toUpperCase();
-            list.innerHTML = "<div style='padding:20px'>Carregando canais...</div>";
+            fetch(PROXY + encodeURIComponent(url))
+                .then(res => {
+                    if(!res.ok) throw new Error("Erro Download");
+                    return res.text();
+                })
+                .then(text => {
+                    if(text.includes("#EXTM3U")) {
+                        showStatus("Lista Baixada! Processando...");
+                        processarM3U(text);
+                    } else {
+                        showStatus("Erro: Login incorreto ou servidor offline.");
+                    }
+                })
+                .catch(err => showStatus("Erro fatal de conexão: " + err.message));
+        }
+
+        function processarM3U(texto) {
+            // Transforma o texto da lista em categorias para o visual V10
+            m3uCategories = {};
+            const lines = texto.split('\n');
+            let currentGroup = "Geral";
+
+            lines.forEach(line => {
+                line = line.trim();
+                if(line.startsWith('#EXTINF')) {
+                    const groupMatch = line.match(/group-title="([^"]*)"/);
+                    if(groupMatch) currentGroup = groupMatch[1];
+                    else currentGroup = "Outros";
+
+                    const nameParts = line.split(',');
+                    const name = nameParts[nameParts.length - 1];
+                    
+                    // Salva temporariamente o nome para a proxima linha (url)
+                    this.tempName = name;
+                    this.tempGroup = currentGroup;
+                } else if(line.startsWith('http')) {
+                    if(!m3uCategories[this.tempGroup]) m3uCategories[this.tempGroup] = [];
+                    m3uCategories[this.tempGroup].push({
+                        name: this.tempName,
+                        url: line,
+                        logo: ''
+                    });
+                }
+            });
+
+            currentMode = 'M3U';
+            iniciarApp(Object.keys(m3uCategories)); // Passa apenas os nomes das categorias
+        }
+
+        function iniciarApp(dataInicial) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            
+            if(currentMode === 'API') renderCategoriasAPI(dataInicial);
+            else renderCategoriasM3U(dataInicial);
+        }
+
+        // --- RENDERIZADORES ---
+        function renderCategoriasAPI(data) {
+            const list = document.getElementById('catList');
+            list.innerHTML = "";
+            data.forEach(cat => {
+                const div = document.createElement('div');
+                div.className = 'cat-item';
+                div.innerText = cat.category_name;
+                div.onclick = () => {
+                    ativarCategoria(div);
+                    carregarCanaisAPI(cat.category_id, cat.category_name);
+                };
+                list.appendChild(div);
+            });
+        }
+
+        function renderCategoriasM3U(nomesCategorias) {
+            const list = document.getElementById('catList');
+            list.innerHTML = "";
+            nomesCategorias.sort().forEach(catName => {
+                const div = document.createElement('div');
+                div.className = 'cat-item';
+                div.innerText = catName;
+                div.onclick = () => {
+                    ativarCategoria(div);
+                    renderCanaisM3U(catName);
+                };
+                list.appendChild(div);
+            });
+        }
+
+        function ativarCategoria(element) {
+            document.querySelectorAll('.cat-item').forEach(e => e.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // --- CARREGAR CANAIS ---
+        function carregarCanaisAPI(catId, catName) {
+            document.getElementById('channelHeader').innerText = catName;
+            const list = document.getElementById('chanList');
+            list.innerHTML = "<div style='padding:10px'>Carregando...</div>";
 
             const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${catId}`;
 
             fetch(PROXY + encodeURIComponent(url))
                 .then(res => res.json())
                 .then(data => {
-                    list.innerHTML = "";
-                    if(!data.length) { list.innerHTML = "Nenhum canal nesta categoria"; return; }
-
-                    data.forEach(ch => {
-                        const div = document.createElement('div');
-                        div.className = 'chan-item';
-                        div.innerHTML = `<span>${ch.name}</span>`;
-                        div.onclick = () => {
-                             document.querySelectorAll('.chan-item').forEach(e => e.classList.remove('active'));
-                             div.classList.add('active');
-                             tocarCanal(ch);
-                        };
-                        list.appendChild(div);
-                    });
-                })
-                .catch(err => list.innerHTML = "Erro ao carregar canais");
+                    renderCanaisLista(data.map(ch => ({
+                        name: ch.name,
+                        url: `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`, // Tenta M3U8 direto
+                        epg_id: ch.stream_id
+                    })));
+                });
         }
 
-        // --- TOCAR CANAL (COLUNA 3) ---
+        function renderCanaisM3U(catName) {
+            document.getElementById('channelHeader').innerText = catName;
+            const canais = m3uCategories[catName];
+            renderCanaisLista(canais);
+        }
+
+        function renderCanaisLista(canais) {
+            const list = document.getElementById('chanList');
+            list.innerHTML = "";
+            
+            if(!canais || canais.length === 0) {
+                list.innerHTML = "<div style='padding:10px'>Nenhum canal.</div>";
+                return;
+            }
+
+            canais.forEach(ch => {
+                const div = document.createElement('div');
+                div.className = 'chan-item';
+                div.innerText = ch.name;
+                div.onclick = () => {
+                    document.querySelectorAll('.chan-item').forEach(e => e.classList.remove('active'));
+                    div.classList.add('active');
+                    tocarCanal(ch);
+                };
+                list.appendChild(div);
+            });
+        }
+
         function tocarCanal(ch) {
-            // Atualiza Info
-            document.getElementById('infoTitle').innerText = ch.name;
-            document.getElementById('infoDesc').innerHTML = `Canal ID: ${ch.stream_id}<br>Categoria: ${document.getElementById('channelHeader').innerText}`;
-            document.getElementById('videoPlaceholder').style.display = 'none';
-
-            // Simulação de EPG (já que API EPG completa é pesada)
-            const randomProg = Math.floor(Math.random() * 80);
-            document.querySelector('.progress-bar').style.width = randomProg + '%';
-            document.getElementById('infoTime').innerText = "Ao Vivo";
-
             const video = document.getElementById('videoPlayer');
-            const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('infoTitle').innerText = ch.name;
+            document.getElementById('infoMeta').innerText = "Reproduzindo";
+            document.getElementById('infoDesc').innerText = "Fonte: " + ch.url;
 
             if(Hls.isSupported()) {
                 if(hls) hls.destroy();
                 hls = new Hls();
-                hls.loadSource(streamUrl);
+                hls.loadSource(ch.url);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+                hls.on(Hls.Events.ERROR, (e, data) => {
+                    if(data.fatal) {
+                        console.log("Erro HLS, tentando nativo...");
+                        hls.destroy();
+                        video.src = ch.url;
+                        video.play();
+                    }
+                });
             } else {
-                video.src = streamUrl;
+                video.src = ch.url;
                 video.play();
             }
         }
