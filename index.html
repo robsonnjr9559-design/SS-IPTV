@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>TV Box V24 Ultra Dark</title>
+    <title>TV Box V25 Stealth</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- VISUAL ULTRA DARK (PRETO PURO) --- */
+        /* --- VISUAL ULTRA DARK STEALTH --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
             background-color: #000000; color: #e0e0e0; font-family: 'Segoe UI', sans-serif;
@@ -24,48 +24,47 @@
             justify-content: center; align-items: center;
         }
         .login-box {
-            background: #0a0a0a; padding: 40px; border-radius: 8px; border: 1px solid #222;
-            width: 450px; text-align: center; box-shadow: 0 0 50px rgba(255, 0, 0, 0.1);
+            background: #0d0d0d; padding: 40px; border-radius: 8px; border: 1px solid #1a1a1a;
+            width: 450px; text-align: center; box-shadow: 0 0 60px rgba(0, 255, 0, 0.05);
         }
-        .login-box h2 { color: #d63031; margin-bottom: 20px; font-weight: bold; }
+        .login-box h2 { color: #2ecc71; margin-bottom: 20px; font-weight: bold; }
         .login-box input {
             width: 100%; padding: 15px; margin: 8px 0; background: #151515;
             border: 1px solid #333; color: white; border-radius: 4px; text-align: center; font-size: 16px;
         }
         .login-box button {
-            width: 100%; padding: 15px; margin-top: 15px; background: #d63031;
-            color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px;
+            width: 100%; padding: 15px; margin-top: 15px; background: #2ecc71;
+            color: black; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px;
         }
 
         /* FOCO (CONTROLE REMOTO) */
         .focused {
-            border: 2px solid #d63031 !important; transform: scale(1.02); 
-            background-color: #d63031 !important; color: white !important; z-index: 50;
-            box-shadow: 0 0 15px rgba(214, 48, 49, 0.4);
+            border: 2px solid #2ecc71 !important; transform: scale(1.02); 
+            background-color: #2ecc71 !important; color: black !important; z-index: 50;
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
         }
 
         /* APP LAYOUT */
         #app { display: none; height: 100%; flex-direction: column; }
         .navbar {
             height: 60px; background: #0a0a0a; display: flex; align-items: center; 
-            padding: 0 30px; border-bottom: 2px solid #d63031; justify-content: space-between;
+            padding: 0 30px; border-bottom: 2px solid #2ecc71; justify-content: space-between;
         }
         .main-layout { display: flex; flex: 1; overflow: hidden; }
 
-        /* COLUNAS DARK */
+        /* COLUNAS */
         .col-cat { width: 25%; background: #050505; display: flex; flex-direction: column; border-right: 1px solid #1a1a1a;}
         .col-chn { width: 35%; background: #0a0a0a; display: flex; flex-direction: column; border-right: 1px solid #1a1a1a;}
         .col-prv { width: 40%; background: #000000; display: flex; flex-direction: column; }
 
-        .list-header { padding: 15px; background: #0f0f0f; font-weight: bold; color: #777; font-size: 12px; letter-spacing: 1px; }
+        .list-header { padding: 15px; background: #0f0f0f; font-weight: bold; color: #555; font-size: 12px; letter-spacing: 1px; }
         .scroll-list { overflow-y: auto; flex: 1; }
         
         .item, .chn-item {
             padding: 15px 20px; font-size: 15px; color: #888; border-bottom: 1px solid #111;
             border-left: 4px solid transparent; transition: all 0.1s;
         }
-        /* Item Ativo (sem foco) */
-        .item.active, .chn-item.active { background: #1a1a1a; border-left: 4px solid #d63031; color: white; }
+        .item.active, .chn-item.active { background: #1a1a1a; border-left: 4px solid #2ecc71; color: white; }
 
         /* PLAYER */
         .video-wrapper {
@@ -82,22 +81,23 @@
         }
         .forced-fullscreen video { width: 100% !important; height: 100% !important; object-fit: fill !important; }
 
-        /* PAINEL DE INFO (MONITORAMENTO) */
-        .info-wrapper { flex: 1; padding: 30px; background: #000; border-top: 1px solid #222; }
-        .info-title { font-size: 26px; font-weight: bold; color: white; margin-bottom: 15px; }
-        .account-status { 
-            display: inline-block; padding: 5px 10px; background: #111; 
-            border: 1px solid #333; border-radius: 4px; font-size: 12px; color: #aaa; margin-bottom: 15px;
+        /* INFO DA CONTA */
+        .info-wrapper { flex: 1; padding: 30px; background: #000; border-top: 1px solid #222; overflow-y: auto; }
+        .info-title { font-size: 26px; font-weight: bold; color: white; margin-bottom: 10px; }
+        
+        .account-box {
+            background: #111; border: 1px solid #333; padding: 15px; border-radius: 6px;
+            margin-bottom: 15px; display: flex; justify-content: space-between; font-size: 12px; color: #aaa;
         }
-        .status-dot { height: 10px; width: 10px; background-color: #0f0; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .acc-item strong { color: #2ecc71; display: block; font-size: 14px; margin-bottom: 3px; }
 
         /* Botão Voltar */
         #backOverlay {
             position: fixed; top: 20px; left: 20px; z-index: 100000;
-            background: rgba(200, 0, 0, 0.8); color: white; padding: 10px 20px;
-            border-radius: 5px; font-weight: bold; display: none; border: 2px solid white;
+            background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 20px;
+            border-radius: 5px; font-weight: bold; display: none; border: 2px solid #2ecc71;
         }
-        #backOverlay.focused { background: #ff0000; transform: scale(1.1); }
+        #backOverlay.focused { background: #2ecc71; color: black; transform: scale(1.1); }
 
     </style>
 </head>
@@ -105,19 +105,19 @@
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2 style="color:#d63031;">SYSTEM V24</h2>
+            <h2>STEALTH V25</h2>
             <input type="text" id="host" placeholder="URL do Servidor" class="login-item">
             <input type="text" id="user" placeholder="Usuário" class="login-item">
             <input type="password" id="pass" placeholder="Senha" class="login-item">
-            <button id="btnLogin" onclick="conectar()" class="login-item">ACESSAR</button>
-            <div style="margin-top:20px; color:#555; font-size:12px;">Modo Conexão Única Ativado</div>
-            <div id="loginStatus" style="color:#d63031; margin-top:10px;"></div>
+            <button id="btnLogin" onclick="conectar()" class="login-item">ACESSAR SEGURO</button>
+            <div style="margin-top:20px; color:#555; font-size:12px;">Proteção Anti-Conflito Ativa</div>
+            <div id="loginStatus" style="color:#2ecc71; margin-top:10px;"></div>
         </div>
     </div>
 
     <div id="app">
         <div class="navbar">
-            <div style="font-size:18px; color:#fff; font-weight:bold; letter-spacing:1px;">DARK IPTV</div>
+            <div style="font-size:18px; color:#fff; font-weight:bold; letter-spacing:1px;">STEALTH IPTV</div>
             <div id="clock" style="color:#ccc; font-weight:bold;">--:--</div>
         </div>
 
@@ -132,23 +132,30 @@
             </div>
             <div class="col-prv">
                 <div class="video-wrapper" id="videoContainer">
-                    <div id="backOverlay" onclick="sairTelaCheia()">⬅ SAIR TELA CHEIA</div>
+                    <div id="backOverlay" onclick="sairTelaCheia()">⬅ VOLTAR</div>
                     <video id="player" playsinline></video>
                     <div id="placeholder" style="position:absolute; color:#222; text-align:center;">
-                        <i class="fas fa-play-circle fa-5x"></i>
+                        <i class="fas fa-shield-alt fa-5x"></i>
                     </div>
                 </div>
                 
                 <div class="info-wrapper">
-                    <div class="info-title" id="infoTitle">Aguardando Seleção...</div>
+                    <div class="info-title" id="infoTitle">Sistema Pronto</div>
                     
-                    <div class="account-status" id="accountMonitor">
-                        <span class="status-dot"></span> Status da Rede: Verificando...
+                    <div class="account-box" id="accInfoBox" style="display:none;">
+                        <div class="acc-item">
+                            <strong>Criado em:</strong>
+                            <span id="dateStart">--/--/----</span>
+                        </div>
+                        <div class="acc-item" style="text-align:right;">
+                            <strong>Vence em:</strong>
+                            <span id="dateEnd">--/--/----</span>
+                        </div>
                     </div>
 
                     <div style="color:#666; font-size:13px; line-height:1.6;">
-                        <i class="fas fa-info-circle"></i> <b>Sistema Anti-Travamento:</b><br>
-                        Ao trocar de canal, a conexão anterior é fechada forçadamente para evitar uso duplo da conta.
+                        <i class="fas fa-ghost"></i> <b>Modo Fantasma Ativo:</b><br>
+                        Conexão única forçada. O sistema desconecta qualquer sessão anterior antes de iniciar uma nova.
                         <br><br>
                         • <b>OK 2x</b> = Tela Cheia<br>
                         • <b>Setas</b> = Navegar
@@ -166,7 +173,7 @@
         let isFullscreen = false;
         
         // Dados da Conta
-        let accountInfo = { max: 1, active: 0 };
+        let accountData = { created: null, exp: null };
 
         // Variáveis Navegação
         let loginIndex = 0;
@@ -176,19 +183,18 @@
         let catData = [];
         let chanData = [];
 
-        // --- RELÓGIO NATIVO (Hora da TV) ---
+        // RELÓGIO (Sincronizado com a TV)
         setInterval(() => {
             const now = new Date();
-            // Pega a hora exata do sistema da TV, sem forçar fuso horário
             const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             document.getElementById('clock').innerText = timeString;
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v24_host')) {
-                document.getElementById('host').value = localStorage.getItem('v24_host');
-                document.getElementById('user').value = localStorage.getItem('v24_user');
-                document.getElementById('pass').value = localStorage.getItem('v24_pass');
+            if(localStorage.getItem('v25_host')) {
+                document.getElementById('host').value = localStorage.getItem('v25_host');
+                document.getElementById('user').value = localStorage.getItem('v25_user');
+                document.getElementById('pass').value = localStorage.getItem('v25_pass');
             }
             updateLoginFocus();
         }
@@ -260,7 +266,7 @@
             }
         }
 
-        // --- CONEXÃO ---
+        // --- CONEXÃO E INFO DA CONTA ---
         async function conectar() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
@@ -270,12 +276,12 @@
             let cleanHost = h.startsWith('http') ? h : 'http://' + h;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
-            localStorage.setItem('v24_host', h); localStorage.setItem('v24_user', u); localStorage.setItem('v24_pass', p);
+            localStorage.setItem('v25_host', h); localStorage.setItem('v25_user', u); localStorage.setItem('v25_pass', p);
             
-            document.getElementById('loginStatus').innerText = "Autenticando...";
+            document.getElementById('loginStatus').innerText = "Verificando...";
             
             try {
-                // Usa proxy para login (mais seguro)
+                // Tenta pegar info do usuário
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`)}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -283,9 +289,15 @@
 
                 if(loginData.user_info && loginData.user_info.auth === 1) {
                     if(loginData.user_info.status === 'Active') {
-                        // Salva info da conta para monitoramento
-                        accountInfo.max = loginData.user_info.max_connections || 1;
-                        accountInfo.active = loginData.user_info.active_cons || 0;
+                        // FORMATAÇÃO DE DATAS (TIMESTAMP -> DATA LEGÍVEL)
+                        const createdAt = new Date(parseInt(loginData.user_info.created_at) * 1000);
+                        const expDate = new Date(parseInt(loginData.user_info.exp_date) * 1000);
+                        
+                        // Atualiza na tela
+                        document.getElementById('dateStart').innerText = createdAt.toLocaleDateString('pt-BR');
+                        document.getElementById('dateEnd').innerText = loginData.user_info.exp_date ? expDate.toLocaleDateString('pt-BR') : "Ilimitado";
+                        document.getElementById('accInfoBox').style.display = 'flex';
+
                         carregarCategorias();
                     } else {
                         throw new Error("Conta Expirada");
@@ -306,7 +318,6 @@
                 const cats = JSON.parse(data.contents);
                 iniciarApp(Array.isArray(cats) ? cats : Object.values(cats));
             } catch (e) {
-                // Fallback Direto
                 const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -333,7 +344,6 @@
                 list.appendChild(div);
             });
             currentColumn = 0; indexCat = 0; updateAppFocus();
-            atualizarMonitor();
         }
 
         async function carregarCanais(id, name) {
@@ -359,47 +369,59 @@
                     };
                     list.appendChild(div);
                 });
-            } catch (e) { list.innerHTML = "Erro ao carregar canais."; }
+            } catch (e) { list.innerHTML = "Erro canais."; }
         }
 
-        // --- PLAYER COM HARD STOP (Conexão Única) ---
+        // --- GHOST KILL PLAYER (ANTI-TRAVAMENTO EXTREMO) ---
         function tocarCanal(ch) {
             const video = document.getElementById('player');
             document.getElementById('placeholder').style.display = 'none';
             document.getElementById('infoTitle').innerText = ch.name;
             
-            // 1. HARD STOP: Limpa tudo antes de começar
+            // 1. GHOST KILL: Destrói tudo anterior
             if(hls) { hls.destroy(); hls = null; }
             video.pause();
-            video.removeAttribute('src'); // Força o navegador a cortar a conexão anterior
-            video.load();
+            video.src = ""; 
+            video.load(); // Força o navegador a esquecer a conexão anterior
 
             const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
 
-            if (Hls.isSupported()) {
-                hls = new Hls({
-                    maxBufferLength: 20, // Buffer seguro
-                    enableWorker: true
-                });
-                hls.loadSource(streamUrl);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
-                hls.on(Hls.Events.ERROR, (e, data) => {
-                    if(data.fatal) {
-                        hls.destroy();
-                        video.src = streamUrl; // Fallback nativo
-                        video.play();
-                    }
-                });
-            } else {
-                video.src = streamUrl;
-                video.play();
-            }
-        }
-
-        function atualizarMonitor() {
-            const el = document.getElementById('accountMonitor');
-            el.innerHTML = `<span class="status-dot"></span> Limite: ${accountInfo.max} telas | Sistema V24 Seguro`;
+            // Pequeno delay para garantir que o servidor processou a desconexão anterior
+            setTimeout(() => {
+                if (Hls.isSupported()) {
+                    hls = new Hls({
+                        // Buffer Gigante para evitar travamentos
+                        maxBufferLength: 60, 
+                        maxMaxBufferLength: 120,
+                        enableWorker: true
+                    });
+                    hls.loadSource(streamUrl);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
+                    
+                    // Recuperação Automática de Erro
+                    hls.on(Hls.Events.ERROR, (e, data) => {
+                        if(data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    hls.startLoad(); // Tenta reconectar
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    hls.recoverMediaError(); // Tenta arrumar o codec
+                                    break;
+                                default:
+                                    hls.destroy();
+                                    video.src = streamUrl; // Fallback
+                                    video.play();
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    video.src = streamUrl;
+                    video.play();
+                }
+            }, 500); // 0.5s de respiro para o servidor
         }
 
         function entrarTelaCheia() {
