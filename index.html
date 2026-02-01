@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>IPTV V36 SP Time</title>
+    <title>IPTV V37 Unlimited</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -46,6 +46,14 @@
             height: 70px; background: #000; display: flex; justify-content: space-between; align-items: center;
             padding: 0 40px; border-bottom: 2px solid #b20710;
         }
+        
+        /* INFO DA CONTA (SIMULADA) */
+        .account-stats {
+            display: flex; gap: 20px; font-size: 13px; color: #aaa;
+        }
+        .stat-item { background: #111; padding: 5px 10px; border-radius: 4px; border: 1px solid #333; }
+        .stat-item b { color: #0f0; } /* Verde para parecer liberado */
+
         .dash-content {
             flex: 1; display: flex; justify-content: center; align-items: center; gap: 40px;
         }
@@ -77,31 +85,18 @@
         .item.active { background: #1a1a1a; color: white; border-left: 4px solid #b20710; }
         .item.focused { background: #b20710; color: white; font-weight: bold; transform: scale(1.02); }
 
-        /* --- PLAYER TITAN (FIXO) --- */
+        /* PLAYER TITAN (FIXO) */
         .player-wrapper {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; 
-            border-bottom: 1px solid #333;
+            width: 100%; aspect-ratio: 16 / 9; background: #000;
+            position: relative; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border-bottom: 1px solid #333;
         }
+        video { width: 100%; height: 100%; object-fit: contain; background: #000; position: relative; z-index: 1; }
 
-        video { 
-            width: 100%; height: 100%; 
-            object-fit: contain; 
-            background: #000;
-            position: relative; z-index: 1;
-        }
-
-        /* MÁSCARA PRETA (Anti-Zoom/Pisca) */
+        /* MÁSCARA PRETA */
         #blackoutMask {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2;
-            display: flex; align-items: center; justify-content: center;
+            background: #000; z-index: 2; display: flex; align-items: center; justify-content: center;
             transition: opacity 0.5s ease;
         }
 
@@ -114,7 +109,6 @@
 
         .info-bar { flex: 1; background: #0a0a0a; padding: 25px; }
         .chn-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .acc-info { font-size: 12px; color: #b20710; margin-bottom: 15px; font-weight: bold; }
         
         #loader { color: #b20710; }
 
@@ -136,6 +130,13 @@
     <div id="dashboard">
         <div class="top-bar">
             <div class="app-logo" style="font-size:24px; margin:0;">IP<span>TV</span></div>
+            
+            <div class="account-stats">
+                <div class="stat-item">Máximo: <b>999.999</b></div>
+                <div class="stat-item">Ativas: <b style="color:#0f0">0</b></div>
+                <div class="stat-item">Validade: <span id="infoExp" style="color:white">--/--/--</span></div>
+            </div>
+
             <div id="clock" style="color:#ddd; font-weight:bold;">00:00</div>
         </div>
         <div class="dash-content">
@@ -158,21 +159,16 @@
             </div>
             <div class="col-vid">
                 <div class="player-wrapper" id="videoWrapper">
-                    
                     <div id="blackoutMask">
                         <div id="loader"><i class="fas fa-circle-notch fa-spin fa-3x"></i></div>
                     </div>
-                    
                     <div id="placeholder" style="position:absolute; z-index:0; color:#222;"><i class="fas fa-play-circle fa-5x"></i></div>
                 </div>
                 
                 <div class="info-bar">
                     <div class="chn-title" id="chnName">Selecione um Canal</div>
-                    <div class="acc-info">
-                        Criado: <span id="infoCreated">--</span> | Vence: <span id="infoExp">--</span>
-                    </div>
-                    <div style="font-size:13px; color:#666; line-height:1.5;">
-                        <span id="statusMsg">Sistema V36 (SP Time) Pronto.</span><br>
+                    <div style="font-size:13px; color:#666;">
+                        <span id="statusMsg">Sistema Unlimited Pronto.</span><br>
                         • OK 2x: Tela Cheia | VOLTAR: Sair
                     </div>
                 </div>
@@ -190,25 +186,20 @@
         let focusIndex = 0, colIndex = 0, catIndex = 0, chnIndex = 0;
         let safeTimeout = null;
 
-        // --- RELÓGIO (FORÇADO SÃO PAULO) ---
+        // --- RELÓGIO SP ---
         setInterval(() => {
-            // Cria data atual
             const date = new Date();
-            // Converte para Fuso de SP (UTC-3) forçadamente
-            // Isso funciona mesmo que a TV esteja com a data errada
             const spTime = new Date(date.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
-            
             const hours = String(spTime.getHours()).padStart(2, '0');
             const minutes = String(spTime.getMinutes()).padStart(2, '0');
-            
             document.getElementById('clock').innerText = `${hours}:${minutes}`;
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v36_host')) {
-                document.getElementById('host').value = localStorage.getItem('v36_host');
-                document.getElementById('user').value = localStorage.getItem('v36_user');
-                document.getElementById('pass').value = localStorage.getItem('v36_pass');
+            if(localStorage.getItem('v37_host')) {
+                document.getElementById('host').value = localStorage.getItem('v37_host');
+                document.getElementById('user').value = localStorage.getItem('v37_user');
+                document.getElementById('pass').value = localStorage.getItem('v37_pass');
             }
             updateFocus();
         }
@@ -263,7 +254,7 @@
             }
         }
 
-        // --- SISTEMA ---
+        // --- SISTEMA FAST LOGIN ---
         async function fazerLogin() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
@@ -274,8 +265,8 @@
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
             
-            localStorage.setItem('v36_host', h); localStorage.setItem('v36_user', u); localStorage.setItem('v36_pass', p);
-            document.getElementById('loginStatus').innerText = "Conectando...";
+            localStorage.setItem('v37_host', h); localStorage.setItem('v37_user', u); localStorage.setItem('v37_pass', p);
+            document.getElementById('loginStatus').innerText = "Acessando...";
 
             try {
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`)}`;
@@ -283,16 +274,18 @@
                 const data = await res.json();
                 const loginData = JSON.parse(data.contents);
 
-                if(loginData.user_info.auth === 1 && loginData.user_info.status === 'Active') {
-                    const cd = new Date(parseInt(loginData.user_info.created_at)*1000);
+                if(loginData.user_info && loginData.user_info.status === 'Active') {
+                    // Configura data de validade
                     const ed = new Date(parseInt(loginData.user_info.exp_date)*1000);
-                    document.getElementById('infoCreated').innerText = cd.toLocaleDateString('pt-BR');
                     document.getElementById('infoExp').innerText = ed.toLocaleDateString('pt-BR');
                     
+                    // ACESSO IMEDIATO (Não espera baixar lista para abrir menu)
                     screen = 'dash';
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'flex';
                     focusIndex=0; updateFocus();
+                    
+                    // Baixa categorias em background (Silencioso)
                     baixarCategorias();
                 } else throw new Error();
             } catch(e) { document.getElementById('loginStatus').innerText = "Erro Login"; }
@@ -351,23 +344,22 @@
             c.appendChild(f);
         }
 
-        // --- MOTOR TITAN (COM MÁSCARA ANTI-ZOOM) ---
+        // --- MOTOR TITAN V37 (CONNECTION KILLER) ---
         function prepararTrocaCanal(ch) {
             if(safeTimeout) clearTimeout(safeTimeout);
-            document.getElementById('statusMsg').innerText = "Trocando...";
+            document.getElementById('statusMsg').innerText = "Limpando conexão...";
             
-            // 1. ATIVA MÁSCARA PRETA IMEDIATAMENTE (Esconde o bug visual)
+            // 1. MÁSCARA ATIVA
             const mask = document.getElementById('blackoutMask');
-            mask.style.display = 'flex';
-            mask.style.opacity = '1'; 
+            mask.style.display = 'flex'; mask.style.opacity = '1'; 
 
-            // 2. MATA TUDO (Hard Reset)
+            // 2. CONNECTION KILLER (Hard Reset)
             destruirPlayer();
             
-            // 3. Espera 0.5s para criar o novo player (Segurança de memória)
+            // 3. Delay de Segurança (1 segundo para garantir que o servidor derrubou o anterior)
             safeTimeout = setTimeout(() => {
                 iniciarCanalTitan(ch);
-            }, 500); 
+            }, 1000); 
         }
 
         function destruirPlayer() {
@@ -382,7 +374,6 @@
             document.getElementById('chnName').innerText = ch.name;
             document.getElementById('statusMsg').innerText = "Conectando...";
 
-            // Cria Vídeo Novo
             const video = document.createElement('video');
             video.id = 'player';
             video.setAttribute('playsinline', '');
@@ -405,12 +396,11 @@
                     video.play().catch(()=>{});
                 });
 
-                // Só tira a máscara quando o vídeo estiver rodando mesmo
                 video.onplaying = function() {
                     document.getElementById('statusMsg').innerText = "Reproduzindo";
                     const mask = document.getElementById('blackoutMask');
-                    mask.style.opacity = '0'; // Fade out suave
-                    setTimeout(() => mask.style.display = 'none', 500); // Remove depois do fade
+                    mask.style.opacity = '0';
+                    setTimeout(() => mask.style.display = 'none', 500);
                 };
 
                 hls.on(Hls.Events.ERROR, (e, data) => {
