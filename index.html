@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>TV Box V15 Híbrida</title>
+    <title>TV Box V16 HTTPS</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- ESTILO VISUAL (AZUL/VERMELHO - MANTIDO) --- */
+        /* --- ESTILO VISUAL SKY BOX (MANTIDO) --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
             background-color: #111422; color: #e5e5e5; font-family: 'Segoe UI', sans-serif;
@@ -36,9 +36,8 @@
             color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 16px;
         }
 
-        /* APP LAYOUT */
+        /* APP */
         #app { display: none; height: 100%; flex-direction: column; }
-
         .navbar {
             height: 60px; background: #1c2235; display: flex; align-items: center; 
             padding: 0 25px; border-bottom: 2px solid #ff3b3b; justify-content: space-between;
@@ -47,7 +46,6 @@
         .clock { font-size: 18px; font-weight: bold; color: #ddd; }
 
         .main-layout { display: flex; flex: 1; overflow: hidden; }
-
         .col-cat { width: 25%; background: #161b2e; border-right: 1px solid #2a324b; display: flex; flex-direction: column; }
         .col-chn { width: 35%; background: #111422; border-right: 1px solid #2a324b; display: flex; flex-direction: column; }
         .col-prv { width: 40%; background: #0d101b; display: flex; flex-direction: column; }
@@ -57,60 +55,44 @@
             color: #ff3b3b; font-size: 13px; text-transform: uppercase;
         }
         .scroll-list { overflow-y: auto; flex: 1; }
-        
         .item, .chn-item {
             padding: 14px 20px; cursor: pointer; font-size: 15px; color: #ccc;
             border-bottom: 1px solid #1f263e; transition: background 0.2s;
         }
         .item:hover, .chn-item:hover { background: #1f263e; color: white; }
-        .item.active, .chn-item.active { 
-            background: #ff3b3b; color: white; font-weight: bold; border-left: 5px solid white; 
-        }
-        .chn-item { display: flex; justify-content: space-between; font-size: 14px; color: #aaa; }
-        .chn-item.active { background: rgba(255, 59, 59, 0.15); border: 1px solid #ff3b3b; }
+        .item.active, .chn-item.active { background: #ff3b3b; color: white; font-weight: bold; }
 
-        /* PLAYER AREA CORRIGIDA */
+        /* PLAYER AREA */
         .video-wrapper {
             width: 100%; height: 50%; background: #000; position: relative;
             display: flex; align-items: center; justify-content: center;
         }
-        
         video { width: 100%; height: 100%; background: #000; }
 
-        /* Botão Play Overlay (Para TVs que bloqueiam autoplay) */
+        /* BOTÃO PLAY MANUAL */
         #playOverlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center;
             cursor: pointer; z-index: 10;
         }
-        #playBtn {
-            font-size: 60px; color: white; opacity: 0.8; transition: transform 0.2s;
-        }
-        #playOverlay:hover #playBtn { transform: scale(1.1); opacity: 1; }
-
-        /* Log de Erro Visual */
-        #errorLog {
-            position: absolute; top: 10px; left: 10px; right: 10px;
-            background: rgba(255,0,0,0.8); color: white; font-size: 12px; padding: 5px;
-            border-radius: 4px; display: none; z-index: 20; text-align: center;
-        }
+        #playBtn { font-size: 60px; color: white; opacity: 0.9; }
 
         .info-wrapper { flex: 1; padding: 25px; background: linear-gradient(#161b2e, #0d101b); }
         .info-title { font-size: 24px; font-weight: bold; color: white; margin-bottom: 10px; }
-        .tag { background: #ff3b3b; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
-
+        .tag { background: #ff3b3b; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-right: 5px;}
+        .secure-tag { background: #2ecc71; color: #000; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;}
     </style>
 </head>
 <body>
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2><i class="fas fa-tv"></i> TV BOX V15</h2>
+            <h2><i class="fas fa-shield-alt"></i> TV BOX V16</h2>
             <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
             <button onclick="conectar()">ENTRAR</button>
-            <div id="loginStatus" style="margin-top:10px; color:yellow;"></div>
+            <div id="loginStatus" style="margin-top:10px; color:yellow; font-size:13px;"></div>
         </div>
     </div>
 
@@ -133,16 +115,12 @@
 
             <div class="col-prv">
                 <div class="video-wrapper" ondblclick="toggleFullScreen()">
-                    <div id="errorLog"></div>
-                    
                     <div id="playOverlay" onclick="tentarPlayManual()">
                         <i class="fas fa-play-circle" id="playBtn"></i>
                     </div>
-
-                    <video id="player" playsinline preload="auto"></video>
-                    
+                    <video id="player" playsinline></video>
                     <div id="placeholder" style="position:absolute; color:#333; text-align:center;">
-                        <i class="fas fa-tv fa-4x"></i><br>Selecione um Canal
+                        <i class="fas fa-tv fa-4x"></i>
                     </div>
                 </div>
                 
@@ -150,9 +128,11 @@
                     <div class="info-title" id="infoTitle">Bem-vindo</div>
                     <div style="margin-bottom:15px;">
                         <span class="tag" id="statusTag">AGUARDANDO</span>
-                        <span style="font-size:12px; color:#aaa; margin-left:10px;">Duplo clique para Tela Cheia</span>
+                        <span class="secure-tag" id="secureStatus" style="display:none;">DESBLOQUEIO SSL ATIVO</span>
                     </div>
-                    <div style="color:#aaa; font-size:13px;" id="techInfo"></div>
+                    <div style="color:#aaa; font-size:13px;">
+                        Status: <span id="debugMsg">Pronto para conectar.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,23 +141,22 @@
     <script>
         let CONFIG = { host: '', user: '', pass: '' };
         let hls = null;
-        let currentChannel = null;
+        
+        // Proxy para transformar HTTP em HTTPS (Essencial para Vercel)
+        const VIDEO_PROXY = "https://corsproxy.io/?";
 
-        // Relógio
         setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v15_host')) {
-                document.getElementById('host').value = localStorage.getItem('v15_host');
-                document.getElementById('user').value = localStorage.getItem('v15_user');
-                document.getElementById('pass').value = localStorage.getItem('v15_pass');
+            if(localStorage.getItem('v16_host')) {
+                document.getElementById('host').value = localStorage.getItem('v16_host');
+                document.getElementById('user').value = localStorage.getItem('v16_user');
+                document.getElementById('pass').value = localStorage.getItem('v16_pass');
             }
         }
 
-        // --- LOGIN V13 SIMPLIFICADO ---
         async function conectar() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
@@ -189,27 +168,25 @@
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
             
-            localStorage.setItem('v15_host', h); localStorage.setItem('v15_user', u); localStorage.setItem('v15_pass', p);
-
+            localStorage.setItem('v16_host', h); localStorage.setItem('v16_user', u); localStorage.setItem('v16_pass', p);
             document.getElementById('loginStatus').innerText = "Conectando...";
 
-            // Tenta Direto
             try {
-                const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
-                const res = await fetch(url);
+                // Tenta buscar lista via Proxy Seguro (AllOrigins) para evitar erro Mixed Content no menu
+                const apiUrl = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+                
+                const res = await fetch(proxyUrl);
                 const data = await res.json();
-                iniciarApp(Array.isArray(data) ? data : Object.values(data));
-            } catch (e) {
-                // Tenta Proxy se direto falhar
-                try {
-                    const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    const lista = JSON.parse(data.contents);
+                const lista = JSON.parse(data.contents);
+
+                if (Array.isArray(lista) || typeof lista === 'object') {
                     iniciarApp(Array.isArray(lista) ? lista : Object.values(lista));
-                } catch (err) {
-                    alert("Erro ao conectar. Verifique se o servidor está online.");
+                } else {
+                    throw new Error("Formato inválido");
                 }
+            } catch (e) {
+                document.getElementById('loginStatus').innerText = "Erro de conexão. Verifique se o servidor está online.";
             }
         }
 
@@ -237,9 +214,10 @@
             list.innerHTML = "<div style='padding:15px'>Carregando...</div>";
 
             try {
-                // Tenta buscar canais via Proxy (mais garantido para listar)
-                const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${id}`)}`;
-                const res = await fetch(url);
+                const apiUrl = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${id}`;
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+                
+                const res = await fetch(proxyUrl);
                 const data = await res.json();
                 const channels = JSON.parse(data.contents);
 
@@ -251,94 +229,75 @@
                     div.onclick = () => {
                         document.querySelectorAll('.chn-item').forEach(e => e.classList.remove('active'));
                         div.classList.add('active');
-                        prepararPlayer(ch);
+                        tocarCanalSeguro(ch);
                     };
                     list.appendChild(div);
                 });
-            } catch (e) { list.innerHTML = "Erro ao listar canais."; }
+            } catch (e) { list.innerHTML = "Erro ao carregar canais."; }
         }
 
-        // --- MOTOR DE VÍDEO HÍBRIDO V15 ---
-        function prepararPlayer(ch) {
-            currentChannel = ch;
+        // --- O SEGREDO: PLAYER COM PONTE HTTPS ---
+        function tocarCanalSeguro(ch) {
             const video = document.getElementById('player');
             document.getElementById('placeholder').style.display = 'none';
             document.getElementById('infoTitle').innerText = ch.name;
-            document.getElementById('errorLog').style.display = 'none';
             document.getElementById('playOverlay').style.display = 'none';
+            document.getElementById('secureStatus').style.display = 'inline-block';
             
-            setStatus("CARREGANDO...", "#ffff00");
+            setStatus("CONECTANDO VIA PROXY...", "#ffff00");
 
-            // TENTATIVA 1: HLS (.m3u8) - Padrão moderno
-            const hlsUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
-            const tsUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.ts`;
+            const originalUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
 
             if(hls) { hls.destroy(); hls = null; }
 
             if (Hls.isSupported()) {
-                console.log("Tentando HLS...");
                 hls = new Hls({
-                    enableWorker: true,
-                    lowLatencyMode: false
+                    // Esta configuração força todas as partes do vídeo passarem pelo Proxy Seguro
+                    xhrSetup: function (xhr, url) {
+                        if (url.startsWith('http:')) {
+                            // Engana a TV transformando http em https via proxy
+                            const secureUrl = VIDEO_PROXY + encodeURIComponent(url);
+                            xhr.open('GET', secureUrl, true);
+                        } else {
+                            xhr.open('GET', url, true);
+                        }
+                    }
                 });
-                
-                hls.loadSource(hlsUrl);
+
+                hls.loadSource(originalUrl); // Carrega a URL original (o xhrSetup vai interceptar e corrigir)
                 hls.attachMedia(video);
-                
+
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     var playPromise = video.play();
                     if (playPromise !== undefined) {
-                        playPromise.then(_ => setStatus("REPRODUZINDO (HLS)", "#0f0"))
-                        .catch(error => mostrarPlayManual("Autoplay Bloqueado"));
+                        playPromise
+                        .then(_ => setStatus("REPRODUZINDO (SEGURO)", "#0f0"))
+                        .catch(error => mostrarPlayManual());
                     }
                 });
 
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
-                        console.warn("HLS falhou. Tentando TS...");
-                        hls.destroy();
-                        // TENTATIVA 2: MODO LEGADO (MPEG-TS)
-                        tentarModoTS(video, tsUrl);
+                        setStatus("ERRO PROXY", "#f00");
+                        document.getElementById('debugMsg').innerText = "O Proxy de vídeo falhou. Tente atualizar a página.";
                     }
                 });
-
             } else {
-                // Para Safari/iOS ou TVs nativas
-                video.src = hlsUrl;
-                video.play().catch(e => mostrarPlayManual("Toque para Iniciar"));
+                // Fallback para nativo (usando proxy na URL direta)
+                const secureNative = VIDEO_PROXY + encodeURIComponent(originalUrl);
+                video.src = secureNative;
+                video.play().catch(e => mostrarPlayManual());
             }
         }
 
-        function tentarModoTS(video, url) {
-            setStatus("MUDANDO PARA MODO TS...", "#00a8ff");
-            document.getElementById('techInfo').innerText = "Tentando formato .TS (Modo Compatibilidade)";
-            
-            video.src = url;
-            video.load();
-            
-            var playPromise = video.play();
-            if (playPromise !== undefined) {
-                playPromise
-                .then(_ => setStatus("REPRODUZINDO (TS)", "#0f0"))
-                .catch(error => {
-                    console.error(error);
-                    // Se der erro aqui, é bloqueio de Mixed Content
-                    setStatus("ERRO DE SEGURANÇA", "#f00");
-                    document.getElementById('errorLog').style.display = 'block';
-                    document.getElementById('errorLog').innerText = "Erro: A TV bloqueou o vídeo por não ser HTTPS. Tente usar 'http://' no navegador se possível.";
-                });
-            }
-        }
-
-        function mostrarPlayManual(motivo) {
+        function mostrarPlayManual() {
             document.getElementById('playOverlay').style.display = 'flex';
-            setStatus("PAUSADO (" + motivo + ")", "#orange");
+            setStatus("AGUARDANDO PLAY", "#orange");
         }
 
         function tentarPlayManual() {
-            const video = document.getElementById('player');
             document.getElementById('playOverlay').style.display = 'none';
-            video.play();
+            document.getElementById('player').play();
         }
 
         function setStatus(texto, cor) {
@@ -349,13 +308,11 @@
         }
 
         function toggleFullScreen() {
-            const container = document.getElementById('app'); 
-            // Algumas TVs preferem fullscreen no body ou container principal
+            const el = document.getElementById('app');
             if (!document.fullscreenElement) {
-                if (container.requestFullscreen) container.requestFullscreen();
-                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                if(el.requestFullscreen) el.requestFullscreen();
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
+                if(document.exitFullscreen) document.exitFullscreen();
             }
         }
     </script>
