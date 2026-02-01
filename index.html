@@ -4,67 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>IPTV V37 Unlimited</title>
+    <title>STB SMART PRO V38</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- TEMA DARK / RED --- */
+        /* --- TEMA STB DARK / SILVER --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
-            background: #000;
-            color: #fff; font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #050505; /* Fundo quase preto */
+            color: #e0e0e0; font-family: 'Segoe UI', Tahoma, sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* --- 1. LOGIN --- */
+        /* --- 1. LOGIN (Estilo Metálico) --- */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            background: radial-gradient(circle at center, #1f1f1f 0%, #000000 100%);
             z-index: 3000; display: flex; justify-content: center; align-items: center;
         }
         .login-card {
-            background: #111; padding: 50px; border-radius: 10px; width: 450px; text-align: center;
-            border-top: 4px solid #b20710; box-shadow: 0 0 50px rgba(178, 7, 16, 0.2);
+            background: linear-gradient(180deg, #1a1a1a, #0d0d0d); 
+            padding: 50px; border-radius: 8px; width: 450px; text-align: center;
+            border: 1px solid #333;
+            box-shadow: 0 0 60px rgba(255, 255, 255, 0.05);
         }
-        .app-logo { font-size: 40px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; }
-        .app-logo span { color: #b20710; } 
+        .app-logo { 
+            font-size: 40px; font-weight: 900; margin-bottom: 30px; letter-spacing: 2px; 
+            color: #fff; text-transform: uppercase;
+        }
+        .app-logo span { color: #bdc3c7; text-shadow: 0 0 10px rgba(255,255,255,0.3); } /* Prata */
 
         .login-input {
-            width: 100%; padding: 15px; background: #222; border: 1px solid #333;
-            color: white; border-radius: 5px; font-size: 16px; text-align: center; margin-bottom: 15px;
+            width: 100%; padding: 15px; background: #000; border: 1px solid #333;
+            color: #ccc; border-radius: 4px; font-size: 16px; text-align: center; margin-bottom: 15px;
+            font-family: monospace; /* Fonte técnica */
         }
-        .login-input.focused { border-color: #b20710; background: #333; transform: scale(1.02); }
-        .btn-login { background: #b20710; color: white; font-weight: bold; border: none; cursor: pointer; }
+        /* Foco Prateado */
+        .login-input.focused {
+            border-color: #bdc3c7; background: #222; transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(189, 195, 199, 0.2); color: white;
+        }
+        .btn-login {
+            background: #333; color: #bdc3c7; font-weight: bold; border: 1px solid #555; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-login.focused {
+            background: #bdc3c7; color: #000; border-color: #fff;
+        }
 
-        /* --- 2. DASHBOARD --- */
+        /* --- 2. DASHBOARD (STB MODE) --- */
         #dashboard {
-            display: none; height: 100%; width: 100%; flex-direction: column; background: #050505; z-index: 2000;
+            display: none; height: 100%; width: 100%; flex-direction: column; background: #000; z-index: 2000;
         }
         .top-bar {
-            height: 70px; background: #000; display: flex; justify-content: space-between; align-items: center;
-            padding: 0 40px; border-bottom: 2px solid #b20710;
+            height: 70px; background: linear-gradient(to bottom, #1a1a1a, #050505); 
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px; border-bottom: 2px solid #333;
         }
         
-        /* INFO DA CONTA (SIMULADA) */
+        /* INFO DA CONTA */
         .account-stats {
-            display: flex; gap: 20px; font-size: 13px; color: #aaa;
+            display: flex; gap: 20px; font-size: 12px; color: #888; font-family: monospace;
         }
-        .stat-item { background: #111; padding: 5px 10px; border-radius: 4px; border: 1px solid #333; }
-        .stat-item b { color: #0f0; } /* Verde para parecer liberado */
+        .stat-item { background: #000; padding: 5px 10px; border: 1px solid #333; border-radius: 2px; }
+        .stat-item b { color: #bdc3c7; } /* Prata */
 
         .dash-content {
             flex: 1; display: flex; justify-content: center; align-items: center; gap: 40px;
         }
         .dash-card {
-            width: 240px; height: 180px; background: #111; border-radius: 15px;
+            width: 240px; height: 180px; background: #0d0d0d; border-radius: 6px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            border: 2px solid #222; transition: 0.2s;
+            border: 1px solid #333; transition: 0.1s;
         }
-        .dash-card i { font-size: 50px; margin-bottom: 20px; color: #555; }
+        .dash-card i { font-size: 50px; margin-bottom: 20px; color: #444; }
+        .dash-card span { font-size: 14px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Foco Dashboard Prata */
         .dash-card.focused {
-            border-color: #b20710; transform: scale(1.1); background: #b20710;
+            border: 2px solid #fff; transform: scale(1.1); 
+            background: linear-gradient(135deg, #2c3e50, #000); /* Metal escuro */
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
         .dash-card.focused i, .dash-card.focused span { color: #fff; }
 
@@ -75,17 +97,27 @@
         .live-container { display: flex; height: 100%; width: 100%; }
         
         .col-cat { width: 25%; background: #080808; border-right: 1px solid #222; display: flex; flex-direction: column; }
-        .col-chn { width: 35%; background: #0c0c0c; border-right: 1px solid #222; display: flex; flex-direction: column; }
+        .col-chn { width: 35%; background: #0a0a0a; border-right: 1px solid #222; display: flex; flex-direction: column; }
         .col-vid { width: 40%; background: #000; display: flex; flex-direction: column; }
 
-        .list-head { padding: 15px; background: #151515; font-weight: bold; font-size: 13px; color: #888; }
+        .list-head { 
+            padding: 12px; background: #151515; font-weight: bold; font-size: 12px; color: #bdc3c7; 
+            border-bottom: 1px solid #333; text-transform: uppercase;
+        }
         .scroll-list { flex: 1; overflow-y: auto; }
 
-        .item { padding: 15px 20px; border-bottom: 1px solid #1a1a1a; color: #999; font-size: 14px; }
-        .item.active { background: #1a1a1a; color: white; border-left: 4px solid #b20710; }
-        .item.focused { background: #b20710; color: white; font-weight: bold; transform: scale(1.02); }
+        .item { padding: 14px 20px; border-bottom: 1px solid #1a1a1a; color: #777; font-size: 14px; }
+        
+        /* Item Selecionado */
+        .item.active { background: #111; color: #fff; border-left: 3px solid #555; }
+        
+        /* Item Focado (Controle) - Prata */
+        .item.focused { 
+            background: #bdc3c7; color: #000; font-weight: bold; 
+            transform: scale(1.0); border-left: 3px solid #fff;
+        }
 
-        /* PLAYER TITAN (FIXO) */
+        /* PLAYER WRAPPER */
         .player-wrapper {
             width: 100%; aspect-ratio: 16 / 9; background: #000;
             position: relative; display: flex; align-items: center; justify-content: center;
@@ -93,7 +125,7 @@
         }
         video { width: 100%; height: 100%; object-fit: contain; background: #000; position: relative; z-index: 1; }
 
-        /* MÁSCARA PRETA */
+        /* MÁSCARA */
         #blackoutMask {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2; display: flex; align-items: center; justify-content: center;
@@ -107,10 +139,10 @@
         }
         .fullscreen-mode video { object-fit: fill; } 
 
-        .info-bar { flex: 1; background: #0a0a0a; padding: 25px; }
-        .chn-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .info-bar { flex: 1; background: #080808; padding: 25px; }
+        .chn-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; color: #fff; }
         
-        #loader { color: #b20710; }
+        #loader { color: #fff; }
 
     </style>
 </head>
@@ -118,43 +150,43 @@
 
     <div id="loginScreen">
         <div class="login-card">
-            <div class="app-logo">IP<span>TV</span></div>
-            <input type="text" id="host" placeholder="URL DNS" class="login-input">
+            <div class="app-logo">STB<span>SMART</span></div>
+            <input type="text" id="host" placeholder="http://url:porta" class="login-input">
             <input type="text" id="user" placeholder="Usuário" class="login-input">
             <input type="password" id="pass" placeholder="Senha" class="login-input">
-            <button id="btnLogin" onclick="fazerLogin()" class="login-input btn-login">ENTRAR</button>
-            <div id="loginStatus" style="color:#aaa; font-size:12px; margin-top:10px;"></div>
+            <button id="btnLogin" onclick="fazerLogin()" class="login-input btn-login">CONECTAR</button>
+            <div id="loginStatus" style="color:#777; font-size:12px; margin-top:10px;"></div>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="top-bar">
-            <div class="app-logo" style="font-size:24px; margin:0;">IP<span>TV</span></div>
+            <div class="app-logo" style="font-size:20px; margin:0;">STB<span>PRO</span></div>
             
             <div class="account-stats">
-                <div class="stat-item">Máximo: <b>999.999</b></div>
-                <div class="stat-item">Ativas: <b style="color:#0f0">0</b></div>
-                <div class="stat-item">Validade: <span id="infoExp" style="color:white">--/--/--</span></div>
+                <div class="stat-item">CONEXÕES: <b>∞</b></div>
+                <div class="stat-item">STATUS: <b style="color:#bdc3c7">ATIVO</b></div>
+                <div class="stat-item">EXPIRA: <span id="infoExp" style="color:#fff">--/--</span></div>
             </div>
 
-            <div id="clock" style="color:#ddd; font-weight:bold;">00:00</div>
+            <div id="clock" style="color:#fff; font-weight:bold; font-family:monospace; font-size:18px;">00:00</div>
         </div>
         <div class="dash-content">
-            <div class="dash-card" id="card_0" onclick="abrirLiveTV()"><i class="fas fa-tv"></i><span>AO VIVO</span></div>
-            <div class="dash-card" id="card_1"><i class="fas fa-film"></i><span>FILMES</span></div>
-            <div class="dash-card" id="card_2"><i class="fas fa-video"></i><span>SÉRIES</span></div>
-            <div class="dash-card" id="card_3" onclick="trocarConta()"><i class="fas fa-sign-out-alt"></i><span>SAIR</span></div>
+            <div class="dash-card" id="card_0" onclick="abrirLiveTV()"><i class="fas fa-tv"></i><span>TV Ao Vivo</span></div>
+            <div class="dash-card" id="card_1"><i class="fas fa-film"></i><span>Filmes</span></div>
+            <div class="dash-card" id="card_2"><i class="fas fa-video"></i><span>Séries</span></div>
+            <div class="dash-card" id="card_3" onclick="trocarConta()"><i class="fas fa-power-off"></i><span>Sair</span></div>
         </div>
     </div>
 
     <div id="liveTvArea">
         <div class="live-container">
             <div class="col-cat">
-                <div class="list-head">CATEGORIAS</div>
+                <div class="list-head">Categorias</div>
                 <div class="scroll-list" id="listCat"></div>
             </div>
             <div class="col-chn">
-                <div class="list-head" id="headChn">CANAIS</div>
+                <div class="list-head" id="headChn">Canais</div>
                 <div class="scroll-list" id="listChn"></div>
             </div>
             <div class="col-vid">
@@ -167,9 +199,9 @@
                 
                 <div class="info-bar">
                     <div class="chn-title" id="chnName">Selecione um Canal</div>
-                    <div style="font-size:13px; color:#666;">
-                        <span id="statusMsg">Sistema Unlimited Pronto.</span><br>
-                        • OK 2x: Tela Cheia | VOLTAR: Sair
+                    <div style="font-size:13px; color:#666; font-family:monospace;">
+                        <span id="statusMsg">SISTEMA STB PRONTO.</span><br><br>
+                        [OK] PLAY/FULLSCREEN &nbsp; [BACK] VOLTAR
                     </div>
                 </div>
             </div>
@@ -186,20 +218,19 @@
         let focusIndex = 0, colIndex = 0, catIndex = 0, chnIndex = 0;
         let safeTimeout = null;
 
-        // --- RELÓGIO SP ---
+        // --- RELÓGIO NATIVO (Hora da TV) ---
         setInterval(() => {
-            const date = new Date();
-            const spTime = new Date(date.toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
-            const hours = String(spTime.getHours()).padStart(2, '0');
-            const minutes = String(spTime.getMinutes()).padStart(2, '0');
-            document.getElementById('clock').innerText = `${hours}:${minutes}`;
+            const now = new Date();
+            // Pega a hora exata do sistema da TV, sem fuso forçado
+            const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('clock').innerText = timeString;
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v37_host')) {
-                document.getElementById('host').value = localStorage.getItem('v37_host');
-                document.getElementById('user').value = localStorage.getItem('v37_user');
-                document.getElementById('pass').value = localStorage.getItem('v37_pass');
+            if(localStorage.getItem('v38_host')) {
+                document.getElementById('host').value = localStorage.getItem('v38_host');
+                document.getElementById('user').value = localStorage.getItem('v38_user');
+                document.getElementById('pass').value = localStorage.getItem('v38_pass');
             }
             updateFocus();
         }
@@ -254,7 +285,7 @@
             }
         }
 
-        // --- SISTEMA FAST LOGIN ---
+        // --- SISTEMA ---
         async function fazerLogin() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
@@ -265,8 +296,8 @@
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
             
-            localStorage.setItem('v37_host', h); localStorage.setItem('v37_user', u); localStorage.setItem('v37_pass', p);
-            document.getElementById('loginStatus').innerText = "Acessando...";
+            localStorage.setItem('v38_host', h); localStorage.setItem('v38_user', u); localStorage.setItem('v38_pass', p);
+            document.getElementById('loginStatus').innerText = "Autenticando STB...";
 
             try {
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}`)}`;
@@ -274,21 +305,19 @@
                 const data = await res.json();
                 const loginData = JSON.parse(data.contents);
 
-                if(loginData.user_info && loginData.user_info.status === 'Active') {
-                    // Configura data de validade
+                if(loginData.user_info.status === 'Active') {
+                    // Data
                     const ed = new Date(parseInt(loginData.user_info.exp_date)*1000);
                     document.getElementById('infoExp').innerText = ed.toLocaleDateString('pt-BR');
                     
-                    // ACESSO IMEDIATO (Não espera baixar lista para abrir menu)
+                    // LOGIN SUCESSO
                     screen = 'dash';
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'flex';
                     focusIndex=0; updateFocus();
-                    
-                    // Baixa categorias em background (Silencioso)
                     baixarCategorias();
                 } else throw new Error();
-            } catch(e) { document.getElementById('loginStatus').innerText = "Erro Login"; }
+            } catch(e) { document.getElementById('loginStatus').innerText = "Erro Conexão"; }
         }
 
         function trocarConta() { localStorage.clear(); location.reload(); }
@@ -319,7 +348,7 @@
         }
 
         async function carregarCanais(id) {
-            document.getElementById('listChn').innerHTML = "<div style='padding:10px'>...</div>";
+            document.getElementById('listChn').innerHTML = "<div style='padding:10px; color:#777'>Carregando...</div>";
             try {
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${id}`)}`;
                 const res = await fetch(url);
@@ -344,22 +373,16 @@
             c.appendChild(f);
         }
 
-        // --- MOTOR TITAN V37 (CONNECTION KILLER) ---
+        // --- PLAYER V38 (TITAN) ---
         function prepararTrocaCanal(ch) {
             if(safeTimeout) clearTimeout(safeTimeout);
-            document.getElementById('statusMsg').innerText = "Limpando conexão...";
+            document.getElementById('statusMsg').innerText = "BUFFERIZANDO...";
             
-            // 1. MÁSCARA ATIVA
             const mask = document.getElementById('blackoutMask');
             mask.style.display = 'flex'; mask.style.opacity = '1'; 
 
-            // 2. CONNECTION KILLER (Hard Reset)
             destruirPlayer();
-            
-            // 3. Delay de Segurança (1 segundo para garantir que o servidor derrubou o anterior)
-            safeTimeout = setTimeout(() => {
-                iniciarCanalTitan(ch);
-            }, 1000); 
+            safeTimeout = setTimeout(() => { iniciarCanalTitan(ch); }, 1000); 
         }
 
         function destruirPlayer() {
@@ -372,8 +395,7 @@
         function iniciarCanalTitan(ch) {
             currentChannel = ch;
             document.getElementById('chnName').innerText = ch.name;
-            document.getElementById('statusMsg').innerText = "Conectando...";
-
+            
             const video = document.createElement('video');
             video.id = 'player';
             video.setAttribute('playsinline', '');
@@ -383,36 +405,25 @@
 
             if(Hls.isSupported()) {
                 hls = new Hls({
-                    maxBufferLength: 30, 
-                    maxMaxBufferLength: 60,
-                    enableWorker: true,
-                    backBufferLength: 0,
-                    lowLatencyMode: false,
+                    maxBufferLength: 30, maxMaxBufferLength: 60, enableWorker: true, backBufferLength: 0
                 });
                 hls.loadSource(streamUrl);
                 hls.attachMedia(video);
                 
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(()=>{});
-                });
+                hls.on(Hls.Events.MANIFEST_PARSED, () => { video.play().catch(()=>{}); });
 
                 video.onplaying = function() {
-                    document.getElementById('statusMsg').innerText = "Reproduzindo";
+                    document.getElementById('statusMsg').innerText = "REPRODUZINDO.";
                     const mask = document.getElementById('blackoutMask');
                     mask.style.opacity = '0';
                     setTimeout(() => mask.style.display = 'none', 500);
                 };
 
                 hls.on(Hls.Events.ERROR, (e, data) => {
-                    if(data.fatal) {
-                        hls.destroy();
-                        video.src = streamUrl; 
-                        video.play();
-                    }
+                    if(data.fatal) { hls.destroy(); video.src = streamUrl; video.play(); }
                 });
             } else {
-                video.src = streamUrl;
-                video.play();
+                video.src = streamUrl; video.play();
             }
         }
 
