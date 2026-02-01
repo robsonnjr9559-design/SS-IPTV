@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>TV Box V21 Final</title>
+    <title>TV Box V23 SP Time</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -13,7 +13,8 @@
         /* --- ESTILO GERAL --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
-            background-color: #111422; color: #e5e5e5; font-family: 'Segoe UI', sans-serif;
+            background-color: #000000;
+            color: #e5e5e5; font-family: 'Segoe UI', sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
@@ -32,10 +33,10 @@
             border: 2px solid #333; color: white; border-radius: 5px; text-align: center; font-size: 16px;
         }
         
-        /* FOCO GERAL (VERMELHO) */
+        /* FOCO VERMELHO */
         .focused {
             border-color: #ff3b3b !important; transform: scale(1.02); 
-            box-shadow: 0 0 15px rgba(255, 59, 59, 0.5); z-index: 50;
+            box-shadow: 0 0 15px rgba(255, 59, 59, 0.6); z-index: 50;
             background-color: #ff3b3b !important; color: white !important;
         }
 
@@ -49,7 +50,7 @@
 
         .col-cat { width: 25%; background: #161b2e; display: flex; flex-direction: column; border-right: 1px solid #222;}
         .col-chn { width: 35%; background: #111422; display: flex; flex-direction: column; border-right: 1px solid #222;}
-        .col-prv { width: 40%; background: #0d101b; display: flex; flex-direction: column; }
+        .col-prv { width: 40%; background: #000; display: flex; flex-direction: column; }
 
         .list-header { padding: 15px; background: #1c2235; font-weight: bold; color: #ff3b3b; }
         .scroll-list { overflow-y: auto; flex: 1; }
@@ -64,22 +65,25 @@
         .video-wrapper {
             width: 100%; height: 50%; background: #000; position: relative;
             display: flex; align-items: center; justify-content: center;
+            transform: translate3d(0, 0, 0); backface-visibility: hidden; perspective: 1000px;
         }
-        video { width: 100%; height: 100%; background: #000; object-fit: contain; }
+        
+        video { 
+            width: 100%; height: 100%; background: #000; object-fit: contain;
+            will-change: transform; transform: translateZ(0);
+        }
 
-        /* --- MODO TELA CHEIA FORÇADO --- */
+        /* TELA CHEIA FORÇADA */
         .forced-fullscreen {
             position: fixed !important; top: 0 !important; left: 0 !important;
             width: 100vw !important; height: 100vh !important;
             z-index: 99999 !important; background: black !important;
         }
-        /* Força o vídeo a esticar na tela cheia */
         .forced-fullscreen video {
-            width: 100% !important; height: 100% !important;
-            object-fit: fill !important; /* ISSO CORRIGE A IMAGEM PEQUENA */
+            width: 100% !important; height: 100% !important; object-fit: fill !important;
         }
 
-        /* Botão Voltar Flutuante (Emergência) */
+        /* Botão Voltar */
         #backOverlay {
             position: fixed; top: 20px; left: 20px; z-index: 100000;
             background: rgba(255, 0, 0, 0.8); color: white; padding: 10px 20px;
@@ -88,7 +92,7 @@
         }
         #backOverlay.focused { background: #ff0000; transform: scale(1.1); }
 
-        .info-wrapper { flex: 1; padding: 25px; background: linear-gradient(#161b2e, #0d101b); }
+        .info-wrapper { flex: 1; padding: 25px; background: linear-gradient(#161b2e, #000); }
         .info-title { font-size: 24px; font-weight: bold; color: white; }
     </style>
 </head>
@@ -96,7 +100,7 @@
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2 style="color:#ff3b3b;">TV BOX V21</h2>
+            <h2 style="color:#ff3b3b;">TV BOX V23</h2>
             <input type="text" id="host" placeholder="URL (http://...)" class="login-item">
             <input type="text" id="user" placeholder="Usuário" class="login-item">
             <input type="password" id="pass" placeholder="Senha" class="login-item">
@@ -108,7 +112,7 @@
 
     <div id="app">
         <div class="navbar">
-            <div style="font-size:20px; color:white; font-weight:bold;">SKY BOX V21</div>
+            <div style="font-size:20px; color:white; font-weight:bold;">SKY BOX V23</div>
             <div id="clock" style="color:#ddd; font-weight:bold;">00:00</div>
         </div>
 
@@ -123,10 +127,8 @@
             </div>
             <div class="col-prv">
                 <div class="video-wrapper" id="videoContainer">
-                    <div id="backOverlay" onclick="sairTelaCheia()">⬅ VOLTAR (SAIR)</div>
-                    
+                    <div id="backOverlay" onclick="sairTelaCheia()">⬅ VOLTAR</div>
                     <video id="player" playsinline></video>
-                    
                     <div id="placeholder" style="position:absolute; color:#333; text-align:center;">
                         <i class="fas fa-tv fa-4x"></i>
                     </div>
@@ -135,10 +137,11 @@
                 <div class="info-wrapper">
                     <div class="info-title" id="infoTitle">Bem-vindo</div>
                     <div style="color:#aaa; font-size:14px; margin-top:10px;">
-                        • <b>OK</b> no canal = Tocar<br>
-                        • <b>OK</b> novamente = <b>TELA CHEIA</b><br>
-                        • <b>VOLTAR</b> ou <b>SETAS</b> = Sair da tela cheia
+                        • <b>OK</b> = Tocar<br>
+                        • <b>OK</b> de novo = <b>TELA CHEIA</b><br>
+                        • <b>VOLTAR/SETAS</b> = Sair da tela cheia
                     </div>
+                    <div style="margin-top:10px; font-size:11px; color:#555;">Horário de São Paulo Ativado</div>
                 </div>
             </div>
         </div>
@@ -151,50 +154,50 @@
         let currentChannel = null;
         let isFullscreen = false;
 
-        // Variáveis de Controle
+        // Variaveis Controle
         let loginIndex = 0;
-        let currentColumn = 0; // 0=Cat, 1=Chan
+        let currentColumn = 0; 
         let indexCat = 0;
         let indexChan = 0;
         let catData = [];
         let chanData = [];
-        let backBtnFocused = false;
 
+        // --- RELÓGIO (CORRIGIDO PARA SÃO PAULO) ---
         setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            const now = new Date();
+            // Força o fuso horário para America/Sao_Paulo independente da TV
+            const options = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' };
+            try {
+                document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR', options);
+            } catch (e) {
+                // Fallback para TVs muito antigas que não suportam timeZone API
+                document.getElementById('clock').innerText = now.toLocaleTimeString('pt-BR').substring(0, 5);
+            }
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v21_host')) {
-                document.getElementById('host').value = localStorage.getItem('v21_host');
-                document.getElementById('user').value = localStorage.getItem('v21_user');
-                document.getElementById('pass').value = localStorage.getItem('v21_pass');
+            if(localStorage.getItem('v23_host')) {
+                document.getElementById('host').value = localStorage.getItem('v23_host');
+                document.getElementById('user').value = localStorage.getItem('v23_user');
+                document.getElementById('pass').value = localStorage.getItem('v23_pass');
             }
             updateLoginFocus();
         }
 
-        // --- CONTROLE REMOTO UNIFICADO ---
+        // --- CONTROLE REMOTO ---
         document.addEventListener('keydown', function(e) {
             const key = e.keyCode;
             
-            // TELA CHEIA (Lógica de Saída de Emergência)
             if (isFullscreen) {
-                // Qualquer tecla de navegação, voltar ou enter deve acionar o menu de saída ou sair
-                if (key === 461 || key === 10009 || key === 8 || key === 27 || key === 166 || key === 4) { // Códigos de Voltar
+                if (key === 461 || key === 10009 || key === 8 || key === 27 || key === 13) {
                     sairTelaCheia();
                     return;
                 }
-                // Se apertar setas ou OK, mostra o botão Voltar
                 document.getElementById('backOverlay').style.display = 'block';
                 document.getElementById('backOverlay').classList.add('focused');
-                
-                if (key === 13) { // Enter no botão voltar
-                    sairTelaCheia();
-                }
                 return;
             }
 
-            // LOGIN
             if(document.getElementById('loginScreen').style.display !== 'none') {
                 if (key === 40) { loginIndex = (loginIndex + 1) % 4; updateLoginFocus(); }
                 else if (key === 38) { loginIndex = (loginIndex - 1 + 4) % 4; updateLoginFocus(); }
@@ -202,15 +205,12 @@
                 return;
             }
 
-            // NAVEGAÇÃO APP
             if (key === 38) appMoveUp();
             else if (key === 40) appMoveDown();
             else if (key === 37) appMoveLeft();
             else if (key === 39) appMoveRight();
             else if (key === 13) appAction();
-            else if (key === 461 || key === 10009 || key === 8) { // Voltar (Sai da categoria ou app)
-                 if(currentColumn === 1) appMoveLeft();
-            }
+            else if (key === 461 || key === 10009 || key === 8) { if(currentColumn === 1) appMoveLeft(); }
         });
 
         function updateLoginFocus() {
@@ -224,35 +224,18 @@
             document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
             if (currentColumn === 0) {
                 const items = document.querySelectorAll('#listCat .item');
-                if(items[indexCat]) {
-                    items[indexCat].classList.add('focused');
-                    items[indexCat].scrollIntoView({block:'center', behavior:'smooth'});
-                }
+                if(items[indexCat]) { items[indexCat].classList.add('focused'); items[indexCat].scrollIntoView({block:'center', behavior:'smooth'}); }
             } else if (currentColumn === 1) {
                 const items = document.querySelectorAll('#listChn .chn-item');
-                if(items[indexChan]) {
-                    items[indexChan].classList.add('focused');
-                    items[indexChan].scrollIntoView({block:'center', behavior:'smooth'});
-                }
+                if(items[indexChan]) { items[indexChan].classList.add('focused'); items[indexChan].scrollIntoView({block:'center', behavior:'smooth'}); }
             }
         }
 
-        function appMoveUp() {
-            if (currentColumn === 0 && indexCat > 0) indexCat--;
-            else if (currentColumn === 1 && indexChan > 0) indexChan--;
-            updateAppFocus();
-        }
-        function appMoveDown() {
-            if (currentColumn === 0 && indexCat < catData.length - 1) indexCat++;
-            else if (currentColumn === 1 && indexChan < chanData.length - 1) indexChan++;
-            updateAppFocus();
-        }
-        function appMoveRight() {
-            if (currentColumn === 0 && chanData.length > 0) { currentColumn = 1; indexChan = 0; updateAppFocus(); }
-        }
-        function appMoveLeft() {
-            if (currentColumn === 1) { currentColumn = 0; updateAppFocus(); }
-        }
+        function appMoveUp() { if (currentColumn === 0 && indexCat > 0) indexCat--; else if (currentColumn === 1 && indexChan > 0) indexChan--; updateAppFocus(); }
+        function appMoveDown() { if (currentColumn === 0 && indexCat < catData.length - 1) indexCat++; else if (currentColumn === 1 && indexChan < chanData.length - 1) indexChan++; updateAppFocus(); }
+        function appMoveRight() { if (currentColumn === 0 && chanData.length > 0) { currentColumn = 1; indexChan = 0; updateAppFocus(); } }
+        function appMoveLeft() { if (currentColumn === 1) { currentColumn = 0; updateAppFocus(); } }
+        
         function appAction() {
             if (currentColumn === 0) {
                 const items = document.querySelectorAll('#listCat .item');
@@ -260,7 +243,7 @@
             } else if (currentColumn === 1) {
                 const selected = chanData[indexChan];
                 if(currentChannel && currentChannel.stream_id === selected.stream_id) {
-                    entrarTelaCheia(); // 2º Clique
+                    entrarTelaCheia();
                 } else {
                     const items = document.querySelectorAll('#listChn .chn-item');
                     if(items[indexChan]) items[indexChan].click();
@@ -278,12 +261,11 @@
             let cleanHost = h.startsWith('http') ? h : 'http://' + h;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
-            localStorage.setItem('v21_host', h); localStorage.setItem('v21_user', u); localStorage.setItem('v21_pass', p);
+            localStorage.setItem('v23_host', h); localStorage.setItem('v23_user', u); localStorage.setItem('v23_pass', p);
             
             document.getElementById('loginStatus').innerText = "Conectando...";
             
             try {
-                // Tenta Proxy AllOrigins (Mais estável)
                 const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`)}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -291,7 +273,6 @@
                 const cats = Array.isArray(lista) ? lista : Object.values(lista);
                 iniciarApp(cats);
             } catch (e) {
-                // Tenta Direto
                 try {
                     const url = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
                     const res = await fetch(url);
@@ -333,12 +314,6 @@
                 const channels = JSON.parse(data.contents);
                 chanData = channels;
                 list.innerHTML = "";
-                
-                if(channels.length === 0) {
-                     list.innerHTML = "<div style='padding:15px'>Vazio</div>";
-                     return;
-                }
-
                 channels.forEach(ch => {
                     const div = document.createElement('div');
                     div.className = 'chn-item';
@@ -351,10 +326,10 @@
                     };
                     list.appendChild(div);
                 });
-            } catch (e) { list.innerHTML = "Erro canais."; }
+            } catch (e) { list.innerHTML = "Erro ao carregar canais."; }
         }
 
-        // --- PLAYER OTIMIZADO V21 ---
+        // --- PLAYER (ANTI-FLICKER) ---
         function tocarCanal(ch) {
             const video = document.getElementById('player');
             document.getElementById('placeholder').style.display = 'none';
@@ -365,11 +340,11 @@
             if(hls) { hls.destroy(); hls = null; }
 
             if (Hls.isSupported()) {
-                // BUFFER OTIMIZADO (Anti-Travamento)
                 hls = new Hls({
-                    maxBufferLength: 30, // Aumentei para 30s (ajuda na estabilidade)
-                    maxMaxBufferLength: 60,
-                    enableWorker: true
+                    maxBufferLength: 30,
+                    enableWorker: true,
+                    startLevel: -1, 
+                    autoStartLoad: true
                 });
                 hls.loadSource(streamUrl);
                 hls.attachMedia(video);
@@ -377,7 +352,7 @@
                 hls.on(Hls.Events.ERROR, (e, data) => {
                     if(data.fatal) {
                         hls.destroy();
-                        video.src = streamUrl; // Tenta nativo
+                        video.src = streamUrl;
                         video.play();
                     }
                 });
@@ -387,24 +362,17 @@
             }
         }
 
-        // --- TELA CHEIA (ESTICADA) ---
         function entrarTelaCheia() {
             const container = document.getElementById('videoContainer');
             if(container.requestFullscreen) container.requestFullscreen().catch(()=>{});
-            
-            // Força via CSS (Garante o esticamento)
             container.classList.add('forced-fullscreen');
             isFullscreen = true;
-            
-            // Mostra aviso de como sair
-            const backBtn = document.getElementById('backOverlay');
-            backBtn.style.display = 'block';
-            setTimeout(() => backBtn.style.display = 'none', 4000); // Some após 4s
+            document.getElementById('backOverlay').style.display = 'block';
+            setTimeout(()=> document.getElementById('backOverlay').style.display = 'none', 3000);
         }
 
         function sairTelaCheia() {
             if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
-            
             document.getElementById('videoContainer').classList.remove('forced-fullscreen');
             document.getElementById('backOverlay').style.display = 'none';
             isFullscreen = false;
