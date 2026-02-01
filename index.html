@@ -4,27 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>TV Box V17 Direct</title>
+    <title>TV Box V18 Remote</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        /* --- ESTILO VISUAL SKY BOX (AZUL/VERMELHO - SEU PREFERIDO) --- */
+        /* --- ESTILO GERAL --- */
         * { box-sizing: border-box; outline: none; user-select: none; }
         body {
             background-color: #111422; color: #e5e5e5; font-family: 'Segoe UI', sans-serif;
             margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column;
         }
 
-        /* LOGIN */
+        /* TELA LOGIN */
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f1219; z-index: 2000; display: flex; justify-content: center; align-items: center;
         }
         .login-box {
-            background: #1c2235; padding: 40px; border-radius: 8px; border: 1px solid #333;
-            width: 450px; text-align: center; box-shadow: 0 0 80px rgba(0,0,0,0.8);
+            background: #1c2235; padding: 40px; border-radius: 8px; border: 2px solid #333;
+            width: 450px; text-align: center;
+        }
+        /* Destaque visual quando o foco está no input de login */
+        .login-box input:focus, .login-box button:focus {
+            border: 2px solid #ff3b3b; transform: scale(1.02);
         }
         .login-box h2 { color: #ff3b3b; margin-bottom: 20px; font-weight: bold; }
         .login-box input {
@@ -42,10 +46,12 @@
             height: 60px; background: #1c2235; display: flex; align-items: center; 
             padding: 0 25px; border-bottom: 2px solid #ff3b3b; justify-content: space-between;
         }
-        .nav-brand { font-size: 22px; font-weight: bold; color: white; letter-spacing: 1px; }
+        .nav-brand { font-size: 22px; font-weight: bold; color: white; }
         .clock { font-size: 18px; font-weight: bold; color: #ddd; }
 
         .main-layout { display: flex; flex: 1; overflow: hidden; }
+
+        /* COLUNAS */
         .col-cat { width: 25%; background: #161b2e; border-right: 1px solid #2a324b; display: flex; flex-direction: column; }
         .col-chn { width: 35%; background: #111422; border-right: 1px solid #2a324b; display: flex; flex-direction: column; }
         .col-prv { width: 40%; background: #0d101b; display: flex; flex-direction: column; }
@@ -56,56 +62,60 @@
         }
         .scroll-list { overflow-y: auto; flex: 1; }
         
+        /* ITENS DA LISTA */
         .item, .chn-item {
-            padding: 14px 20px; cursor: pointer; font-size: 15px; color: #ccc;
-            border-bottom: 1px solid #1f263e; transition: background 0.2s;
+            padding: 14px 20px; font-size: 15px; color: #ccc;
+            border-bottom: 1px solid #1f263e; border-left: 5px solid transparent;
         }
-        .item:hover, .chn-item:hover { background: #1f263e; color: white; }
-        .item.active, .chn-item.active { background: #ff3b3b; color: white; font-weight: bold; }
         
-        .chn-item { display: flex; justify-content: space-between; }
-        .chn-item.active { background: rgba(255, 59, 59, 0.2); border: 1px solid #ff3b3b; color: white; }
+        /* --- SISTEMA DE FOCO (CONTROLE REMOTO) --- */
+        /* Quando selecionado pelo controle, fica Vermelho Vivo */
+        .item.focused, .chn-item.focused {
+            background: #ff3b3b; color: white; font-weight: bold; 
+            border-left: 5px solid white; transform: scale(1.02); z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        /* Item ativo mas sem foco (cinza claro) */
+        .item.active, .chn-item.active {
+            background: #2c3e50; border-left: 5px solid #ff3b3b; color: white;
+        }
 
-        /* PLAYER AREA */
+        .chn-item { display: flex; justify-content: space-between; }
+
+        /* PLAYER */
         .video-wrapper {
             width: 100%; height: 50%; background: #000; position: relative;
             display: flex; align-items: center; justify-content: center;
         }
         video { width: 100%; height: 100%; background: #000; }
 
-        /* Controles Sobre o Vídeo */
+        /* BOTÕES DO PLAYER */
         .player-controls {
             position: absolute; top: 10px; right: 10px; z-index: 50; display: flex; gap: 10px;
         }
         .ctrl-btn {
-            background: rgba(0,0,0,0.6); color: white; border: 1px solid #555;
-            padding: 5px 10px; font-size: 11px; cursor: pointer; border-radius: 4px;
+            background: rgba(0,0,0,0.6); color: white; border: 2px solid #555;
+            padding: 8px 15px; font-size: 12px; cursor: pointer; border-radius: 4px; font-weight: bold;
         }
-        .ctrl-btn:hover { background: #ff3b3b; border-color: #ff3b3b; }
-
-        #playOverlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center;
-            cursor: pointer; z-index: 10;
+        /* Foco nos botões do player */
+        .ctrl-btn.focused {
+            background: #ff3b3b; border-color: white; transform: scale(1.1);
         }
-        #playBtn { font-size: 60px; color: white; opacity: 0.9; }
 
         .info-wrapper { flex: 1; padding: 25px; background: linear-gradient(#161b2e, #0d101b); }
         .info-title { font-size: 24px; font-weight: bold; color: white; margin-bottom: 10px; }
-        .tag { background: #ff3b3b; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; margin-right: 5px;}
-        .mode-tag { background: #3498db; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;}
     </style>
 </head>
 <body>
 
     <div id="loginScreen">
         <div class="login-box">
-            <h2><i class="fas fa-play"></i> TV PLAYER V17</h2>
+            <h2>TV REMOTE V18</h2>
             <input type="text" id="host" placeholder="http://url:porta">
             <input type="text" id="user" placeholder="Usuário">
             <input type="password" id="pass" placeholder="Senha">
             <button onclick="conectar()">ENTRAR</button>
-            <div id="loginStatus" style="margin-top:10px; color:yellow; font-size:13px;"></div>
+            <div id="loginStatus" style="margin-top:10px; color:yellow;"></div>
         </div>
     </div>
 
@@ -117,28 +127,22 @@
 
         <div class="main-layout">
             <div class="col-cat">
-                <div class="list-header">Categorias</div>
+                <div class="list-header">1. Categorias</div>
                 <div class="scroll-list" id="listCat"></div>
             </div>
 
             <div class="col-chn">
-                <div class="list-header" id="headerChn">Canais</div>
+                <div class="list-header" id="headerChn">2. Canais</div>
                 <div class="scroll-list" id="listChn"></div>
             </div>
 
             <div class="col-prv">
-                <div class="video-wrapper" ondblclick="toggleFullScreen()">
+                <div class="video-wrapper">
                     <div class="player-controls">
-                        <button class="ctrl-btn" onclick="trocarPlayer()">🔄 TROCAR PLAYER</button>
-                        <button class="ctrl-btn" onclick="toggleFullScreen()">⛶ TELA CHEIA</button>
+                        <button id="btnSwap" class="ctrl-btn">TROCAR PLAYER</button>
+                        <button id="btnFull" class="ctrl-btn">TELA CHEIA</button>
                     </div>
-
-                    <div id="playOverlay" onclick="tentarPlayManual()">
-                        <i class="fas fa-play-circle" id="playBtn"></i>
-                    </div>
-
-                    <video id="player" playsinline crossorigin="anonymous"></video>
-                    
+                    <video id="player" playsinline></video>
                     <div id="placeholder" style="position:absolute; color:#333; text-align:center;">
                         <i class="fas fa-tv fa-4x"></i>
                     </div>
@@ -146,13 +150,11 @@
                 
                 <div class="info-wrapper">
                     <div class="info-title" id="infoTitle">Bem-vindo</div>
-                    <div style="margin-bottom:15px;">
-                        <span class="tag" id="statusTag">AGUARDANDO</span>
-                        <span class="mode-tag" id="playerMode">MODO: AUTO</span>
-                    </div>
-                    <div style="color:#aaa; font-size:13px;" id="debugMsg">
-                        Se a tela ficar preta, clique no botão "TROCAR PLAYER" acima do vídeo.<br>
-                        Isso alterna entre modo Web e modo Nativo da TV.
+                    <div style="color:#aaa; font-size:14px;" id="navHelp">
+                        Use as <b>SETAS</b> do controle para navegar.<br>
+                        <b>DIREITA</b> » Entra na lista.<br>
+                        <b>OK</b> » Seleciona.<br>
+                        Para Tela Cheia: Navegue até o botão "TELA CHEIA" e aperte OK.
                     </div>
                 </div>
             </div>
@@ -160,80 +162,190 @@
     </div>
 
     <script>
+        // CONFIG
         let CONFIG = { host: '', user: '', pass: '' };
         let hls = null;
         let currentChannel = null;
-        let playerMode = 0; // 0=HLS, 1=NATIVE
+        let playerMode = 0;
 
+        // --- VARIÁVEIS DE NAVEGAÇÃO (CONTROLE) ---
+        let currentColumn = 0; // 0=Cat, 1=Chan, 2=Player
+        let indexCat = 0;
+        let indexChan = 0;
+        let indexCtrl = 0; // 0=Swap, 1=Full
+        let catData = [];
+        let chanData = [];
+
+        // Inicialização
         setInterval(() => {
             document.getElementById('clock').innerText = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v17_host')) {
-                document.getElementById('host').value = localStorage.getItem('v17_host');
-                document.getElementById('user').value = localStorage.getItem('v17_user');
-                document.getElementById('pass').value = localStorage.getItem('v17_pass');
+            if(localStorage.getItem('v18_host')) {
+                document.getElementById('host').value = localStorage.getItem('v18_host');
+                document.getElementById('user').value = localStorage.getItem('v18_user');
+                document.getElementById('pass').value = localStorage.getItem('v18_pass');
             }
         }
 
+        // --- LÓGICA DE CONTROLE REMOTO (KEY LISTENER) ---
+        document.addEventListener('keydown', function(e) {
+            // Se estiver no login, ignora navegação complexa
+            if(document.getElementById('loginScreen').style.display !== 'none') return;
+
+            // Códigos de tecla comuns em TV
+            const key = e.keyCode;
+            // 37=Left, 38=Up, 39=Right, 40=Down, 13=Enter, 10009=Back
+
+            if (key === 38) moveUp();
+            else if (key === 40) moveDown();
+            else if (key === 37) moveLeft();
+            else if (key === 39) moveRight();
+            else if (key === 13) executeAction();
+            else if (key === 461 || key === 10009 || key === 8) { // Voltar
+                 if(document.fullscreenElement) document.exitFullscreen();
+                 else moveLeft();
+            }
+        });
+
+        function updateFocus() {
+            // Remove todos os focos visuais
+            document.querySelectorAll('.focused').forEach(el => el.classList.remove('focused'));
+
+            if (currentColumn === 0) { // Categorias
+                const items = document.querySelectorAll('#listCat .item');
+                if (items[indexCat]) {
+                    items[indexCat].classList.add('focused');
+                    items[indexCat].scrollIntoView({block: 'center', behavior: 'smooth'});
+                }
+            } else if (currentColumn === 1) { // Canais
+                const items = document.querySelectorAll('#listChn .chn-item');
+                if (items[indexChan]) {
+                    items[indexChan].classList.add('focused');
+                    items[indexChan].scrollIntoView({block: 'center', behavior: 'smooth'});
+                }
+            } else if (currentColumn === 2) { // Player
+                const btns = [document.getElementById('btnSwap'), document.getElementById('btnFull')];
+                btns[indexCtrl].classList.add('focused');
+            }
+        }
+
+        function moveUp() {
+            if (currentColumn === 0) {
+                if (indexCat > 0) indexCat--;
+            } else if (currentColumn === 1) {
+                if (indexChan > 0) indexChan--;
+            }
+            updateFocus();
+        }
+
+        function moveDown() {
+            if (currentColumn === 0) {
+                if (indexCat < catData.length - 1) indexCat++;
+            } else if (currentColumn === 1) {
+                if (indexChan < chanData.length - 1) indexChan++;
+            }
+            updateFocus();
+        }
+
+        function moveRight() {
+            if (currentColumn === 0 && chanData.length > 0) {
+                currentColumn = 1; // Vai para canais
+                indexChan = 0;
+            } else if (currentColumn === 1) {
+                currentColumn = 2; // Vai para player
+                indexCtrl = 1; // Foca no botão Fullscreen
+            } else if (currentColumn === 2) {
+                if (indexCtrl === 0) indexCtrl = 1; // Move entre botões
+            }
+            updateFocus();
+        }
+
+        function moveLeft() {
+            if (currentColumn === 2) {
+                if (indexCtrl === 1) indexCtrl = 0;
+                else currentColumn = 1; // Volta para canais
+            } else if (currentColumn === 1) {
+                currentColumn = 0; // Volta para categorias
+            }
+            updateFocus();
+        }
+
+        function executeAction() {
+            if (currentColumn === 0) {
+                // Carrega categoria
+                document.querySelectorAll('#listCat .item')[indexCat].click();
+                // Opcional: Auto-mover para direita
+                // currentColumn = 1; 
+            } else if (currentColumn === 1) {
+                // Toca canal
+                document.querySelectorAll('#listChn .chn-item')[indexChan].click();
+            } else if (currentColumn === 2) {
+                // Clica no botão focado
+                if (indexCtrl === 0) trocarPlayer();
+                if (indexCtrl === 1) toggleFullScreen();
+            }
+        }
+
+        // --- CONEXÃO E LÓGICA (Mantido V17) ---
         async function conectar() {
             const h = document.getElementById('host').value.trim();
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
-            
             if(!h || !u || !p) return alert("Preencha tudo!");
 
             let cleanHost = h.startsWith('http') ? h : 'http://' + h;
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
+            localStorage.setItem('v18_host', h); localStorage.setItem('v18_user', u); localStorage.setItem('v18_pass', p);
             
-            localStorage.setItem('v17_host', h); localStorage.setItem('v17_user', u); localStorage.setItem('v17_pass', p);
             document.getElementById('loginStatus').innerText = "Conectando...";
 
             try {
-                // Tenta via Proxy (AllOrigins) para garantir que a lista baixe
+                // Tenta Proxy AllOrigins
                 const apiUrl = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
-                
                 const res = await fetch(proxyUrl);
                 const data = await res.json();
                 const lista = JSON.parse(data.contents);
-
-                if (Array.isArray(lista) || typeof lista === 'object') {
-                    iniciarApp(Array.isArray(lista) ? lista : Object.values(lista));
-                } else {
-                    throw new Error("Formato inválido");
-                }
+                const cats = Array.isArray(lista) ? lista : Object.values(lista);
+                iniciarApp(cats);
             } catch (e) {
-                // Fallback: Modo Direto (se proxy falhar)
+                // Fallback Direto
                 try {
                     const directUrl = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_categories`;
                     const res = await fetch(directUrl);
                     const data = await res.json();
                     iniciarApp(Array.isArray(data) ? data : Object.values(data));
-                } catch(err) {
-                     document.getElementById('loginStatus').innerText = "Erro. Servidor não respondeu.";
-                }
+                } catch(err) { document.getElementById('loginStatus').innerText = "Erro ao conectar."; }
             }
         }
 
         function iniciarApp(cats) {
+            catData = cats;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
+            
             const list = document.getElementById('listCat');
             list.innerHTML = "";
-            cats.forEach(cat => {
+            cats.forEach((cat, idx) => {
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerText = cat.category_name;
                 div.onclick = () => {
+                    // Visual "Active" (fundo cinza) diferente de "Focused" (vermelho)
                     document.querySelectorAll('.col-cat .item').forEach(e => e.classList.remove('active'));
                     div.classList.add('active');
                     carregarCanais(cat.category_id, cat.category_name);
                 };
                 list.appendChild(div);
             });
+            
+            // Foca no primeiro item
+            currentColumn = 0;
+            indexCat = 0;
+            updateFocus();
         }
 
         async function carregarCanais(id, name) {
@@ -244,16 +356,16 @@
             try {
                 const apiUrl = `${CONFIG.host}/player_api.php?username=${CONFIG.user}&password=${CONFIG.pass}&action=get_live_streams&category_id=${id}`;
                 const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
-                
                 const res = await fetch(proxyUrl);
                 const data = await res.json();
                 const channels = JSON.parse(data.contents);
+                chanData = channels;
 
                 list.innerHTML = "";
-                channels.forEach(ch => {
+                channels.forEach((ch, idx) => {
                     const div = document.createElement('div');
                     div.className = 'chn-item';
-                    div.innerHTML = `<span>${ch.name}</span>`;
+                    div.innerText = ch.name;
                     div.onclick = () => {
                         document.querySelectorAll('.chn-item').forEach(e => e.classList.remove('active'));
                         div.classList.add('active');
@@ -262,90 +374,45 @@
                     };
                     list.appendChild(div);
                 });
+                
+                // Move foco para lista de canais automaticamente se usando mouse/clique
+                // Se usando controle, o usuário move com a seta direita
             } catch (e) { list.innerHTML = "Erro ao carregar canais."; }
-        }
-
-        // --- SISTEMA DE PLAYER V17 (SEM PROXY DE VIDEO) ---
-        function trocarPlayer() {
-            if(!currentChannel) return;
-            playerMode = (playerMode === 0) ? 1 : 0; // Alterna entre 0 e 1
-            tocarCanal(currentChannel);
         }
 
         function tocarCanal(ch) {
             const video = document.getElementById('player');
             document.getElementById('placeholder').style.display = 'none';
             document.getElementById('infoTitle').innerText = ch.name;
-            document.getElementById('playOverlay').style.display = 'none';
             
-            // URLs Diretas (Sem Proxy - Resolve o ERRO PROXY)
             const hlsUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
-            
             if(hls) { hls.destroy(); hls = null; }
 
-            // MODO 0: HLS (Padrão Web)
-            if (playerMode === 0) {
-                document.getElementById('playerMode').innerText = "MODO: HLS (WEB)";
-                setStatus("CARREGANDO HLS...", "#ffff00");
-
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(hlsUrl);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        video.play().catch(e => mostrarPlayManual());
-                        setStatus("ONLINE (HLS)", "#0f0");
-                    });
-                    hls.on(Hls.Events.ERROR, (e, data) => {
-                        if(data.fatal) {
-                            setStatus("ERRO HLS", "#f00");
-                            // Se falhar, tenta nativo automaticamente
-                            playerMode = 1;
-                            tocarCanal(ch);
-                        }
-                    });
-                } else {
-                    // Fallback para TVs que não suportam HLS.js
-                    playerMode = 1;
-                    tocarCanal(ch);
-                }
-            } 
-            // MODO 1: NATIVO (Direto na TV - Burlador de HTTPS)
-            else {
-                document.getElementById('playerMode').innerText = "MODO: NATIVO (TV)";
-                setStatus("CARREGANDO NATIVO...", "#00a8ff");
-                
+            if (playerMode === 0 && Hls.isSupported()) {
+                hls = new Hls();
+                hls.loadSource(hlsUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
+                hls.on(Hls.Events.ERROR, (e, data) => { if(data.fatal) { playerMode=1; tocarCanal(ch); } });
+            } else {
                 video.src = hlsUrl;
                 video.load();
-                video.play()
-                    .then(() => setStatus("ONLINE (NATIVO)", "#0f0"))
-                    .catch(e => {
-                        mostrarPlayManual();
-                        setStatus("AGUARDANDO PLAY", "orange");
-                    });
+                video.play().catch(()=>{});
             }
         }
 
-        function mostrarPlayManual() {
-            document.getElementById('playOverlay').style.display = 'flex';
-        }
-
-        function tentarPlayManual() {
-            document.getElementById('playOverlay').style.display = 'none';
-            document.getElementById('player').play();
-        }
-
-        function setStatus(texto, cor) {
-            const el = document.getElementById('statusTag');
-            el.innerText = texto;
-            el.style.backgroundColor = cor;
-            el.style.color = (cor === '#ffff00') ? '#000' : '#fff';
+        function trocarPlayer() {
+            if(currentChannel) {
+                playerMode = (playerMode === 0) ? 1 : 0;
+                tocarCanal(currentChannel);
+            }
         }
 
         function toggleFullScreen() {
             const el = document.getElementById('app');
             if (!document.fullscreenElement) {
                 if(el.requestFullscreen) el.requestFullscreen();
+                else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
             } else {
                 if(document.exitFullscreen) document.exitFullscreen();
             }
