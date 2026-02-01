@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>IPTV V32 Multi-Account</title>
+    <title>IPTV V33 Precision</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -44,7 +44,7 @@
             background: #b20710; color: white; font-weight: bold; border: none; cursor: pointer;
         }
 
-        /* --- 2. DASHBOARD (COM 4 OPÇÕES) --- */
+        /* --- 2. DASHBOARD --- */
         #dashboard {
             display: none; height: 100%; width: 100%; flex-direction: column;
             background: #050505; z-index: 2000;
@@ -55,7 +55,7 @@
         }
         
         .dash-content {
-            flex: 1; display: flex; justify-content: center; align-items: center; gap: 30px; /* Gap menor para caber 4 */
+            flex: 1; display: flex; justify-content: center; align-items: center; gap: 30px;
             background: radial-gradient(circle at center, #111 0%, #000 100%);
         }
         .dash-card {
@@ -73,7 +73,7 @@
         }
         .dash-card.focused i, .dash-card.focused span { color: #fff; }
 
-        /* --- 3. LIVE TV --- */
+        /* --- 3. LIVE TV (LAYOUT CORRIGIDO) --- */
         #liveTvArea { 
             display: none; height: 100%; width: 100%; 
             position: absolute; top: 0; left: 0; z-index: 1000;
@@ -84,7 +84,12 @@
         
         .col-cat { width: 25%; background: #080808; border-right: 1px solid #222; display: flex; flex-direction: column; }
         .col-chn { width: 35%; background: #0c0c0c; border-right: 1px solid #222; display: flex; flex-direction: column; }
-        .col-vid { width: 40%; background: #000; display: flex; flex-direction: column; }
+        
+        /* CORREÇÃO DO PLAYER (Fundo preto fixo) */
+        .col-vid { 
+            width: 40%; background: #000; display: flex; flex-direction: column; 
+            justify-content: flex-start; /* Começa do topo */
+        }
 
         .list-head { padding: 15px; background: #151515; color: #777; font-weight: bold; font-size: 12px; letter-spacing: 1px; }
         .scroll-list { flex: 1; overflow-y: auto; }
@@ -96,20 +101,32 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.8);
         }
 
-        /* Player */
-        .video-box { 
-            width: 100%; height: 50%; background: #000; display: flex; align-items: center; justify-content: center; position: relative;
+        /* --- CORREÇÃO DO TAMANHO DO VÍDEO (ASPECT RATIO FIXO) --- */
+        /* Isso resolve o problema da imagem ER7.jpeg */
+        .preview-container {
+            width: 100%;
+            aspect-ratio: 16 / 9; /* FORÇA PROPORÇÃO WIDESCREEN */
+            background: #000;
+            position: relative;
+            border-bottom: 2px solid #b20710;
+            max-height: 50vh; /* Garante que não ocupe mais que a metade da altura */
         }
-        video { width: 100%; height: 100%; background: #000; object-fit: contain; }
+        
+        video { 
+            width: 100%; height: 100%; 
+            background: #000; 
+            object-fit: contain; /* Garante que a imagem caiba sem cortar */
+        }
 
+        /* Fullscreen Real */
         .fullscreen-mode {
             position: fixed !important; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 99999; background: black;
+            z-index: 99999; background: black; border: none; max-height: 100vh;
         }
         .fullscreen-mode video { object-fit: fill; } 
 
         .info-bar { 
-            flex: 1; background: #0a0a0a; padding: 20px; border-top: 2px solid #b20710; 
+            flex: 1; background: #0a0a0a; padding: 20px; 
             display: flex; flex-direction: column;
         }
         .chn-title { font-size: 24px; color: white; font-weight: bold; margin-bottom: 5px; }
@@ -122,7 +139,14 @@
 
         .chn-desc { font-size: 13px; color: #666; line-height: 1.5; }
 
-        #loader { position: absolute; color: #b20710; display: none; }
+        #loader { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #b20710; display: none; 
+        }
+        #placeholder {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #222;
+        }
 
     </style>
 </head>
@@ -172,18 +196,22 @@
                 <div class="scroll-list" id="listChn"></div>
             </div>
             <div class="col-vid">
-                <div class="video-box" id="videoContainer">
+                <div class="preview-container" id="videoContainer">
                     <video id="player" playsinline></video>
                     <div id="loader"><i class="fas fa-circle-notch fa-spin fa-3x"></i></div>
-                    <div id="placeholder" style="position:absolute; color:#222;"><i class="fas fa-play-circle fa-5x"></i></div>
+                    <div id="placeholder"><i class="fas fa-play-circle fa-5x"></i></div>
                 </div>
+                
                 <div class="info-bar">
                     <div class="chn-title" id="chnName">Selecione um Canal</div>
+                    
                     <div class="account-meta">
                         <span>Criado: <b id="infoCreated">--/--</b></span>
                         <span>Vence: <b id="infoExp">--/--</b></span>
                     </div>
+
                     <div class="chn-desc">
+                        <div id="statusMsg" style="color:#b20710; font-weight:bold; margin-bottom:5px;"></div>
                         • <b>OK 1x</b> = Reproduzir<br>
                         • <b>OK 2x</b> = Tela Cheia<br>
                         • <b>VOLTAR</b> = Menu Anterior
@@ -199,6 +227,7 @@
         let hls = null;
         let currentChannel = null;
         let isFullscreen = false;
+        let playTimeout = null; // Timer para conexão segura
         
         // Dados
         let categories = [];
@@ -219,10 +248,10 @@
         }, 1000);
 
         window.onload = () => {
-            if(localStorage.getItem('v32_host')) {
-                document.getElementById('host').value = localStorage.getItem('v32_host');
-                document.getElementById('user').value = localStorage.getItem('v32_user');
-                document.getElementById('pass').value = localStorage.getItem('v32_pass');
+            if(localStorage.getItem('v33_host')) {
+                document.getElementById('host').value = localStorage.getItem('v33_host');
+                document.getElementById('user').value = localStorage.getItem('v33_user');
+                document.getElementById('pass').value = localStorage.getItem('v33_pass');
             }
             updateFocus();
         }
@@ -242,11 +271,11 @@
                 if(k===13) { if(focusIndex===3) fazerLogin(); else { focusIndex++; updateFocus(); } }
             }
             else if(screen === 'dash') {
-                if(k===39) { focusIndex++; if(focusIndex>3) focusIndex=0; updateFocus(); } // Agora vai até 3
+                if(k===39) { focusIndex++; if(focusIndex>3) focusIndex=0; updateFocus(); }
                 if(k===37) { focusIndex--; if(focusIndex<0) focusIndex=3; updateFocus(); }
                 if(k===13) { 
                     if(focusIndex===0) abrirLiveTV(); 
-                    else if(focusIndex===3) trocarConta(); // Ação do novo botão
+                    else if(focusIndex===3) trocarConta();
                     else alert("Em breve"); 
                 }
             }
@@ -255,12 +284,12 @@
                     if(colIndex===1) { colIndex=0; updateFocus(); }
                     else { fecharLiveTV(); }
                 }
-                if(k===38) {
+                if(k===38) { // Cima
                     if(colIndex===0 && catIndex>0) catIndex--;
                     if(colIndex===1 && chnIndex>0) chnIndex--;
                     updateFocus();
                 }
-                if(k===40) {
+                if(k===40) { // Baixo
                     if(colIndex===0 && catIndex<categories.length-1) catIndex++;
                     if(colIndex===1 && chnIndex<channels.length-1) chnIndex++;
                     updateFocus();
@@ -274,7 +303,7 @@
                         if(currentChannel && currentChannel.stream_id === selected.stream_id) {
                             entrarTelaCheia();
                         } else {
-                            tocarCanal(selected);
+                            tocarCanalSafe(selected); // USA MÉTODO SEGURO
                         }
                     }
                 }
@@ -303,8 +332,8 @@
         // --- SISTEMA ---
         function trocarConta() {
             if(confirm("Deseja sair e trocar de lista?")) {
-                localStorage.clear(); // Limpa dados salvos
-                location.reload();    // Recarrega a página no login
+                localStorage.clear();
+                location.reload();
             }
         }
 
@@ -318,7 +347,7 @@
             if(cleanHost.endsWith('/')) cleanHost = cleanHost.slice(0, -1);
             CONFIG = { host: cleanHost, user: u, pass: p };
             
-            localStorage.setItem('v32_host', h); localStorage.setItem('v32_user', u); localStorage.setItem('v32_pass', p);
+            localStorage.setItem('v33_host', h); localStorage.setItem('v33_user', u); localStorage.setItem('v33_pass', p);
             document.getElementById('loginStatus').innerText = "Conectando...";
 
             try {
@@ -342,9 +371,7 @@
                     focusIndex=0; updateFocus();
                     baixarCategorias();
                 } else { throw new Error("Erro"); }
-            } catch(e) {
-                tentaLoginDireto();
-            }
+            } catch(e) { tentaLoginDireto(); }
         }
 
         async function tentaLoginDireto() {
@@ -353,6 +380,8 @@
                 const res = await fetch(url);
                 const data = await res.json();
                 if(data.user_info.auth === 1) { 
+                    document.getElementById('infoCreated').innerText = "N/A"; 
+                    document.getElementById('infoExp').innerText = "Ilimitado";
                     screen = 'dash';
                     document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'flex';
@@ -420,53 +449,69 @@
                 div.innerText = item[nameField];
                 div.onclick = () => {
                     if(idPrefix === 'cat_') { catIndex=idx; colIndex=0; updateFocus(); carregarCanais(item.category_id); }
-                    else { chnIndex=idx; colIndex=1; updateFocus(); tocarCanal(item); }
+                    else { chnIndex=idx; colIndex=1; updateFocus(); tocarCanalSafe(item); }
                 };
                 fragment.appendChild(div);
             });
             container.appendChild(fragment);
         }
 
-        function tocarCanal(ch) {
+        // --- PLAYER COM SAFE SWITCH (Anti-Multiplas Conexões) ---
+        function tocarCanalSafe(ch) {
             currentChannel = ch;
             document.getElementById('chnName').innerText = ch.name;
             document.getElementById('loader').style.display = 'block';
             document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('statusMsg').innerText = "Desconectando anterior...";
             
             const video = document.getElementById('player');
-            const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
-
+            
+            // 1. Limpeza Imediata
             if(hls) { hls.destroy(); hls = null; }
-            video.pause(); video.removeAttribute('src'); video.load();
+            video.pause();
+            video.removeAttribute('src'); 
+            video.load();
+
+            // 2. Cancela timers anteriores
+            if(playTimeout) clearTimeout(playTimeout);
+
+            // 3. Delay de Segurança (1 segundo)
+            // Isso garante que o servidor receba o "Disconnect" antes do "Connect"
+            playTimeout = setTimeout(() => {
+                iniciarStreamReal(ch, video);
+            }, 1000); // 1000ms = 1 segundo de segurança
+        }
+
+        function iniciarStreamReal(ch, video) {
+            document.getElementById('statusMsg').innerText = "Conectando...";
+            const streamUrl = `${CONFIG.host}/live/${CONFIG.user}/${CONFIG.pass}/${ch.stream_id}.m3u8`;
 
             if (Hls.isSupported()) {
                 hls = new Hls({
-                    startLevel: -1,
+                    maxBufferLength: 30, 
+                    maxMaxBufferLength: 60,
                     enableWorker: true,
-                    lowLatencyMode: true,
-                    backBufferLength: 90,
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 600,
+                    manifestLoadingTimeOut: 20000,
                 });
                 hls.loadSource(streamUrl);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.play().catch(()=>{});
                     document.getElementById('loader').style.display = 'none';
+                    document.getElementById('statusMsg').innerText = "";
                 });
                 hls.on(Hls.Events.ERROR, (e, data) => {
                     if(data.fatal) {
-                        switch(data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
-                            case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
-                            default: hls.destroy(); video.src = streamUrl; video.play(); break;
-                        }
+                        hls.destroy();
+                        video.src = streamUrl; // Tenta nativo
+                        video.play();
                     }
                 });
             } else {
                 video.src = streamUrl;
                 video.play();
                 document.getElementById('loader').style.display = 'none';
+                document.getElementById('statusMsg').innerText = "";
             }
         }
 
@@ -474,6 +519,7 @@
             const video = document.getElementById('player');
             video.pause(); video.removeAttribute('src');
             if(hls) hls.destroy();
+            if(playTimeout) clearTimeout(playTimeout);
         }
 
         function entrarTelaCheia() {
