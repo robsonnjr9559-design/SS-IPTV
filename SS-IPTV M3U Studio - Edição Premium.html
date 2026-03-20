@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SS-IPTV M3U Studio - Edição Premium</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cores Midnight Obsidian & Gold */
+            --bg-color: #020202;
+            --surface: rgba(12, 12, 14, 0.85);
+            --primary: #d4af37; 
+            --primary-grad: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+            --primary-hover: linear-gradient(135deg, #fcf6ba 0%, #d4af37 100%);
+            --text-main: #ffffff;
+            --text-muted: #9ca3af; 
+            --success: #10b981;
+            --success-grad: linear-gradient(135deg, #34d399 0%, #059669 100%);
+            --warning: #f59e0b;
+            --info: #38bdf8;
+            --border: rgba(212, 175, 55, 0.25);
+            --border-highlight: rgba(212, 175, 55, 0.6);
+            --radius: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: #000;
+            background-image: radial-gradient(circle at 15% 50%, rgba(30, 25, 10, 0.8) 0%, var(--bg-color) 60%), radial-gradient(circle at 85% 30%, rgba(20, 20, 25, 0.6) 0%, var(--bg-color) 60%);
+            background-attachment: fixed;
+            color: var(--text-main); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; padding: 15px; overflow-x: hidden;
+        }
+        
+        /* Efeito de Vidro Premium Aprimorado */
+        .container { 
+            background: var(--surface); 
+            backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);
+            border: 1px solid var(--border); 
+            border-radius: var(--radius); 
+            padding: 35px 25px; width: 100%; max-width: 480px; 
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.95), inset 0 2px 0 rgba(255, 255, 255, 0.05), inset 0 -2px 20px rgba(212, 175, 55, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; position: relative; }
+        .logo-txt { font-size: 30px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 4px 20px rgba(212, 175, 55, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .theme-text { background: var(--primary-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; }
+        
+        .input-section { background: rgba(0,0,0,0.3); padding: 20px 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.02); position: relative; overflow: hidden; transition: all 0.3s; }
+        .input-section:focus-within { background: rgba(0,0,0,0.5); border-color: rgba(212, 175, 55, 0.1); }
+        .input-section::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--primary-grad); box-shadow: 0 0 10px var(--primary); }
+        .section-title { font-size: 11px; color: var(--primary); font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
+        
+        .divider { text-align: center; position: relative; margin: 25px 0; }
+        .divider::before { content: ''; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); }
+        .divider span { position: relative; background: #0c0c0e; padding: 5px 15px; border-radius: 20px; color: var(--text-muted); font-size: 10px; font-weight: 800; letter-spacing: 2px; border: 1px solid rgba(255,255,255,0.05); }
+
+        .form-group { margin-bottom: 15px; position: relative; }
+        .form-group label { display: block; font-size: 11px; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .inp { 
+            width: 100%; padding: 16px 18px; background: rgba(0, 0, 0, 0.5); 
+            border: 1px solid rgba(255,255,255,0.05); color: #fff; font-weight: 600; 
+            border-radius: 12px; font-size: 13px; transition: all 0.3s ease;
+        }
+        .inp:focus { border-color: var(--primary); background: rgba(0, 0, 0, 0.8); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1); }
+        .inp::placeholder { color: #555; }
+        
+        select.inp { appearance: none; cursor: pointer; }
+        .select-wrapper::after { content: '\f078'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 18px; top: 42px; color: var(--primary); pointer-events: none; font-size: 12px; transition: 0.3s; }
+        .select-wrapper:focus-within::after { transform: rotate(180deg); }
+
+        /* Botão com Shimmer Effect */
+        .btn { 
+            width: 100%; padding: 18px; background: var(--primary-grad); color: #111; border: none; font-weight: 900; border-radius: 14px; font-size: 14px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3); text-transform: uppercase; letter-spacing: 1px; position: relative; overflow: hidden;
+        }
+        .btn::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: rotate(45deg); animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer { 0% { left: -100%; } 100% { left: 100%; } }
+        .btn:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 15px 35px rgba(212, 175, 55, 0.5); }
+        .btn:active { transform: translateY(0) scale(0.99); }
+        .btn:disabled { background: #222; color: #555; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn:disabled::after { display: none; }
+        
+        .btn-check { background: transparent; color: var(--primary); border: 1px solid var(--border-highlight); box-shadow: none; margin-bottom: 20px; }
+        .btn-check:hover { background: rgba(212, 175, 55, 0.1); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15); }
+
+        .btn-small { width: 100%; padding: 14px; background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.1); font-weight: 700; border-radius: 12px; font-size: 12px; cursor: pointer; transition: 0.3s; margin-bottom: 15px; display: flex; justify-content: center; gap: 8px; align-items: center; }
+        .btn-small:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--primary); color: var(--primary); }
+
+        /* Scanner Otimizado para 100% de Responsividade */
+        .scanner-card { display: none; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 25px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.5); }
+        .scanner-header { font-size: 12px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; }
+        .ping-badge { background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.3); }
+        
+        .scan-grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .scan-item { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; border: 1px solid rgba(255,255,255,0.02); transition: 0.3s; }
+        .scan-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.05); }
+        .scan-item span { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; margin-bottom: 4px; letter-spacing: 1px; }
+        .scan-item strong { font-size: 14px; color: #fff; font-weight: 800; }
+        
+        /* Grid da Tabela Inferior Perfeitamente Responsiva */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(0,0,0,0.5); padding: 15px 10px; border: 1px solid rgba(212, 175, 55, 0.15); border-radius: 14px; width: 100%; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3); }
+        .stats-col { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .stats-col span { font-size: 9px; margin-bottom: 6px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+        .stats-col span i { font-size: 14px; }
+        .stats-col strong { font-size: 16px; font-weight: 900; color: var(--primary); text-shadow: 0 2px 10px rgba(212, 175, 55, 0.2); }
+
+        .status-active { color: var(--success) !important; text-shadow: 0 0 10px rgba(16,185,129,0.4); }
+        .status-expired { color: #ef4444 !important; }
+
+        .smart-box { display: none; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px; animation: slideDown 0.4s; }
+        .smart-results { max-height: 240px; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; margin-top: 15px; padding: 6px; scroll-behavior: smooth; }
+        
+        /* Scrollbar Dinâmica e Oculta */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; transition: 0.3s; }
+        .smart-results:hover::-webkit-scrollbar-thumb, .cart-items:hover::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        .smart-item { padding: 10px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: 0.2s ease-in-out; margin-bottom: 2px; border: 1px solid transparent; }
+        .smart-item img { width: 40px; height: 60px; border-radius: 6px; object-fit: cover; background: #111; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .smart-item .info { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .smart-item .title { color: #fff; font-size: 12px; font-weight: 700; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .smart-item .meta { color: var(--text-muted); font-size: 10px; margin-top: 4px; font-weight: 600; }
+        .smart-item:hover { background: rgba(255,255,255,0.05); transform: translateX(4px); }
+        .smart-item.selected { background: rgba(212, 175, 55, 0.1); border-color: rgba(212, 175, 55, 0.3); transform: translateX(4px); }
+
+        .cart-box { display: none; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
+        .cart-header { font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 1px; text-transform: uppercase; }
+        #cartCount { background: var(--primary-grad); color: #000; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; }
+        .cart-items { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 5px; }
+        .cart-item { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); transition: 0.2s; }
+        .cart-item:hover { border-color: rgba(239, 68, 68, 0.3); }
+        .cart-item .name { font-size: 11px; font-weight: 600; color: #fff; flex: 1; display: flex; align-items: center; gap: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+        .cart-item .remove { color: #ef4444; cursor: pointer; padding: 5px; font-size: 14px; transition: 0.3s; opacity: 0.6; }
+        .cart-item .remove:hover { opacity: 1; transform: scale(1.2) rotate(90deg); }
+
+        /* Loader Inteligente e Barra de Progresso */
+        .status-container { display: none; text-align: center; margin-top: 25px; padding: 35px 20px; background: rgba(0,0,0,0.5); border-radius: 16px; border: 1px solid rgba(212, 175, 55, 0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        .loader { width: 50px; height: 50px; border: 4px solid rgba(212, 175, 55, 0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin: 0 auto 20px; }
+        .status-text { font-size: 14px; font-weight: 800; color: var(--text-main); letter-spacing: 0.5px; margin-bottom: 6px; }
+        .status-sub { font-size: 11px; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .progress-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; margin-top: 20px; overflow: hidden; position: relative; }
+        .progress-bar-fill { width: 0%; height: 100%; background: var(--primary-grad); border-radius: 10px; transition: width 0.3s ease-out; box-shadow: 0 0 15px rgba(212, 175, 55, 0.6); }
+        .progress-bar-bg.indeterminate .progress-bar-fill { width: 30%; animation: moveBar 1.2s infinite ease-in-out; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes moveBar { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+
+        /* Área de Resultado Magnífica */
+        .result-area { margin-top: 25px; display: none; background: rgba(16, 185, 129, 0.05); padding: 40px 25px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.2); text-align: center; animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .result-area::before { content:''; position:absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at 50% 0%, rgba(16,185,129,0.1) 0%, transparent 70%); z-index:-1; }
+        .time-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 12px; font-size: 9px; font-weight: 800; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); letter-spacing: 1px; text-transform: uppercase; }
+        .success-icon { font-size: 60px; color: var(--success); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(16,185,129,0.5)); }
+        .stats { font-size: 12px; color: var(--text-muted); margin-bottom: 30px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+        .stats span { display: block; color: #fff; font-weight: 900; font-size: 32px; margin-top: 5px; text-transform: none; letter-spacing: -1px; }
+        .user-validity { display: inline-block; background: rgba(212, 175, 55, 0.1); padding: 6px 18px; border-radius: 20px; font-size: 10px; color: var(--primary); margin-top: 15px; font-weight: 800; border: 1px solid rgba(212, 175, 55, 0.2); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .btn-download { display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; padding: 18px; background: var(--success-grad); color: #fff; text-decoration: none; border-radius: 14px; font-weight: 900; font-size: 14px; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2); }
+        .btn-download:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 35px rgba(16, 185, 129, 0.4); }
+        .btn-reset { width: 100%; padding: 16px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-weight: 700; border-radius: 14px; font-size: 11px; cursor: pointer; transition: 0.3s; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-reset:hover { background: rgba(255,255,255,0.05); color: #fff; }
+
+        /* Toasts Modernos */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+        .toast { background: rgba(15, 15, 18, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 16px 20px; border-radius: 14px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-left: 4px solid var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.8); animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.error { border-left-color: #ef4444; }
+        @keyframes slideInRight { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div class="container">
+    <div class="header">
+        <div class="logo-txt"><i class="fas fa-crown theme-text"></i> SS-IPTV <span class="theme-text">M3U STUDIO</span></div>
+        <div class="subtitle">Ultimate Premium Edition ⚡</div>
+    </div>
+
+    <form id="mainForm" onsubmit="event.preventDefault(); App.start();">
+        
+        <div class="input-section">
+            <div class="section-title"><i class="fas fa-server"></i> OPÇÃO 1: CREDENCIAIS API</div>
+            <div class="form-group">
+                <input type="url" id="serverUrl" class="inp" placeholder="URL do Servidor (Ex: http://tv.com:8080)" autocomplete="off">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <input type="text" id="username" class="inp" placeholder="Usuário" autocomplete="off">
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <input type="password" id="password" class="inp" placeholder="Senha" autocomplete="off">
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"><span>OU USE O LINK</span></div>
+
+        <div class="input-section" style="margin-bottom: 25px;">
+            <div class="section-title"><i class="fas fa-link"></i> OPÇÃO 2: LINK M3U COMPLETO</div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <input type="url" id="fullLink" class="inp" placeholder="Cole o seu Link M3U Inteiro Aqui" autocomplete="off">
+            </div>
+        </div>
+
+        <div id="scannerResult" class="scanner-card">
+            <div class="scanner-header">
+                <div><i class="fas fa-shield-alt"></i> Diagnóstico de Conta</div>
+                <div id="pingBadge" class="ping-badge">Ping: -- ms</div>
+            </div>
+            <div id="scannerData"></div>
+        </div>
+
+        <div class="form-group select-wrapper">
+            <label>Conteúdo a Extrair</label>
+            <select id="contentType" class="inp" onchange="App.handleTypeChange()">
+                <option value="live">📺 TV AO VIVO (Lista Ultra Leve)</option>
+                <option value="movie">🎬 FILMES (Catálogo Completo)</option>
+                <option value="series">📺 SÉRIES (Motor Turbo Extremo ⚡)</option>
+                <option value="movie_smart">🔍 UM FILME ESPECÍFICO (Smart Search)</option>
+                <option value="movie_multi">🛒 PACOTE DE FILMES (Multi-Escolha) ⭐</option>
+                <option value="series_smart">🔍 UMA SÉRIE ESPECÍFICA (Smart Search)</option>
+                <option value="series_multi">🛒 PACOTE DE SÉRIES (Multi-Escolha) ⭐</option>
+                <option value="all">📦 TUDO JUNTO (Base Master Bruta)</option>
+            </select>
+        </div>
+
+        <div id="smartBox" class="smart-box">
+            <label id="smartLabel" style="font-size: 11px; color: var(--primary); display: block; margin-bottom: 12px; font-weight: 800; letter-spacing: 0.5px;">LOCALIZAR MÍDIA:</label>
+            <button type="button" class="btn-small" onclick="App.loadSmartDatabase()" id="btnLoadSmart">
+                <i class="fas fa-cloud-download-alt"></i> Sincronizar Banco de Dados
+            </button>
+            <div id="smartSearchArea" style="display:none;">
+                <div style="position: relative;">
+                    <i class="fas fa-search" style="position: absolute; left: 16px; top: 18px; color: var(--text-muted); font-size: 14px;"></i>
+                    <input type="text" id="smartSearch" class="inp" placeholder="Digite para buscar rapidamente..." oninput="App.debounceSearch()" autocomplete="off" style="padding-left: 42px; background: rgba(0,0,0,0.8);">
+                </div>
+                <div id="smartResults" class="smart-results"></div>
+            </div>
+            <div id="multiCart" class="cart-box">
+                <div class="cart-header">
+                    <span id="cartHeaderTitle"><i class="fas fa-shopping-cart"></i> MÍDIAS NO PACOTE</span>
+                    <span id="cartCount">0</span>
+                </div>
+                <div id="cartItems" class="cart-items">
+                    <div style="text-align:center; font-size:10px; color:var(--text-muted); padding:15px; font-weight: 600; text-transform: uppercase;">O pacote está vazio.</div>
+                </div>
+            </div>
+            <input type="hidden" id="selectedMediaId">
+            <input type="hidden" id="selectedMediaName">
+            <input type="hidden" id="selectedMediaCover">
+            <input type="hidden" id="selectedMediaExt">
+        </div>
+        
+        <div class="form-group select-wrapper">
+            <label>Formato de Saída (Codificação)</label>
+            <select id="format" class="inp">
+                <option value="ts">MPEG-TS (.ts) - Padrão Smart TVs / Estável</option>
+                <option value="m3u8">HLS (.m3u8) - Apps Mobile / Web / Rápido</option>
+            </select>
+        </div>
+        
+        <button type="button" class="btn btn-check" onclick="App.checkAccount()">
+            <i class="fas fa-radar"></i> ANALISAR STATUS DA CONTA
+        </button>
+
+        <button type="submit" class="btn" id="btnSubmit">
+            <i class="fas fa-bolt"></i> GERAR LISTA OTIMIZADA
+        </button>
+    </form>
+
+    <div id="statusContainer" class="status-container">
+        <div class="loader"></div>
+        <div class="status-text" id="statusText">A conectar...</div>
+        <div class="status-sub" id="statusSub">Estabelecendo ligação encriptada.</div>
+        <div class="progress-bar-bg indeterminate" id="progressArea"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+
+    <div id="resultArea" class="result-area">
+        <div class="time-badge" id="timeBadge"><i class="fas fa-stopwatch"></i> --s</div>
+        <i class="fas fa-check-circle success-icon"></i>
+        <div class="stats" id="statsText"></div>
+        <a id="downloadBtn" href="#" class="btn-download">
+            <i class="fas fa-download"></i> TRANSFERIR ARQUIVO
+        </a>
+        <button type="button" class="btn-reset" onclick="App.resetForm()">Gerar Nova Lista</button>
+    </div>
+</div>
+
+<script>
+    const App = {
+        config: { server: "", user: "", pass: "", format: "", prefix: "", expDateStr: "", type: "", startTime: 0 },
+        database: [],
+        multiSelection: [],
+        searchTimer: null, // Timer Anti-Lag
+
+        handleTypeChange: () => {
+            const type = document.getElementById('contentType').value;
+            const smartBox = document.getElementById('smartBox');
+            const btnLoad = document.getElementById('btnLoadSmart');
+            
+            App.database = []; App.multiSelection = []; App.renderCart();
+            
+            if (['movie_smart', 'movie_multi', 'series_smart', 'series_multi'].includes(type)) {
+                smartBox.style.display = 'block';
+                document.getElementById('smartSearchArea').style.display = 'none';
+                document.getElementById('smartResults').innerHTML = '';
+                document.getElementById('smartSearch').value = '';
+                
+                const isMovie = ['movie_smart', 'movie_multi'].includes(type);
+                const isMulti = ['series_multi', 'movie_multi'].includes(type);
+                
+                document.getElementById('multiCart').style.display = isMulti ? 'block' : 'none';
+                
+                if (isMulti) {
+                    document.getElementById('smartLabel').innerText = type === 'movie_multi' ? "BUSCAR E ADICIONAR FILMES:" : "BUSCAR E ADICIONAR SÉRIES:";
+                    document.getElementById('cartHeaderTitle').innerHTML = type === 'movie_multi' ? '<i class="fas fa-film"></i> FILMES NO PACOTE' : '<i class="fas fa-video"></i> SÉRIES NO PACOTE';
+                } else {
+                    document.getElementById('smartLabel').innerText = isMovie ? "LOCALIZAR FILME:" : "LOCALIZAR SÉRIE:";
+                }
+                
+                btnLoad.innerHTML = `<i class="fas fa-cloud-download-alt"></i> Sincronizar Banco de ${isMovie ? 'Filmes' : 'Séries'}`;
+                btnLoad.style.display = 'flex'; btnLoad.disabled = false;
+            } else {
+                smartBox.style.display = 'none';
+            }
+        },
+
+        showToast: (msg, type = 'error') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle')}"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        },
+
+        normalizeStr: (str) => str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "",
+
+        fetchData: async (url, isJson = true) => {
+            const timestamp = `_t=${new Date().getTime()}`;
+            const finalUrl = url.includes('?') ? `${url}&${timestamp}` : `${url}?${timestamp}`;
+            const isHttps = window.location.protocol === 'https:';
+            const needsProxy = isHttps && finalUrl.startsWith('http://');
+            
+            try {
+                if (needsProxy) throw new Error('CORS');
+                const res = await fetch(finalUrl);
+                if (!res.ok) throw new Error('Servidor retornou erro');
+                return isJson ? await res.json() : await res.text();
+            } catch (error) {
+                try {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(finalUrl)}`;
+                    const resProxy = await fetch(proxyUrl);
+                    if (!resProxy.ok) throw new Error();
+                    return isJson ? await resProxy.json() : await resProxy.text();
+                } catch (err) { return null; }
+            }
+        },
+
+        extractCredentials: () => {
+            const link = document.getElementById('fullLink').value.trim();
+            const s = document.getElementById('serverUrl').value.trim().replace(/\/$/, "");
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+
+            if (link) {
+                try {
+                    const urlObj = new URL(link);
+                    App.config.server = `${urlObj.protocol}//${urlObj.host}`;
+                    App.config.user = urlObj.searchParams.get('username');
+                    App.config.pass = urlObj.searchParams.get('password');
+                    if (!App.config.user || !App.config.pass) throw new Error();
+                } catch(e) { 
+                    App.showToast("Link M3U inválido ou incompleto.", "warning"); return false; 
+                }
+            } else if (s || u || p) {
+                if (!s || !u || !p) {
+                    App.showToast("Preencha todos os campos da Opção 1 (API).", "warning"); return false;
+                }
+                App.config.server = s.startsWith('http') ? s : `http://${s}`;
+                App.config.user = u; App.config.pass = p;
+            } else {
+                App.showToast("Preencha a Opção 1 OU cole o Link na Opção 2.", "warning"); return false;
+            }
+            
+            try { App.config.prefix = new URL(App.config.server).hostname.replace(/[^a-zA-Z0-9]/g, '_').toUpperCase(); } 
+            catch(e) { App.config.prefix = "IPTV_STUDIO"; }
+            return true;
+        },
+
+        updateStatus: (msg, sub = "Processamento em alta velocidade ⚡", percent = -1) => {
+            document.getElementById('statusText').innerText = msg;
+            document.getElementById('statusSub').innerText = sub;
+            const pArea = document.getElementById('progressArea');
+            const pBar = document.getElementById('progressBar');
+            if(percent >= 0) {
+                pArea.classList.remove('indeterminate');
+                pBar.style.width = `${percent}%`;
+            } else {
+                pArea.classList.add('indeterminate');
+            }
+        },
+
+        handleError: (msg) => {
+            document.getElementById('statusContainer').style.display = 'none';
+            document.getElementById('btnSubmit').disabled = false;
+            App.showToast(msg, "error");
+        },
+
+        getCount: (obj) => {
+            if (!obj) return 0;
+            if (Array.isArray(obj)) return obj.length;
+            if (typeof obj === 'object') return Object.keys(obj).length;
+            return 0;
+        },
+
+        checkAccount: async () => {
+            if(!App.extractCredentials()) return;
+            
+            const pingStart = Date.now();
+            App.updateStatus("A analisar credenciais...", "A medir latência do servidor...");
+            document.getElementById('statusContainer').style.display = 'block';
+            document.getElementById('scannerResult').style.display = 'none';
+
+            try {
+                const authUrl = `${App.config.server}/player_api.php?username=${App.config.user}&password=${App.config.pass}`;
+                const data = await App.fetchData(authUrl);
+
+                if (!data || !data.user_info) return App.handleError("Acesso negado. Verifique os dados inseridos.");
+                
+                const pingTime = Date.now() - pingStart;
+                const pingEl = document.getElementById('pingBadge');
+                pingEl.innerHTML = `<i class="fas fa-satellite-dish"></i> Ping: ${pingTime}ms`;
+                pingEl.style.color = pingTime < 400 ? "var(--success)" : (pingTime < 1000 ? "var(--warning)" : "#ef4444");
+                pingEl.style.borderColor = pingEl.style.color;
+                pingEl.style.background = `rgba(${pingTime < 400 ? '16,185,129' : (pingTime < 1000 ? '245,158,11' : '239,68,68')}, 0.15)`;
+
+                App.updateStatus("A extrair metadados...", "Varredura simultânea de base de dados ⚡");
+                
+                const [liveData, vodData, seriesData] = await Promise.all([
+                    App.fetchData(`${App.config.server}/player_api.php?username=${App.config.user}&password=${App.config.pass}&action=get_live_streams`),
+                    App.fetchData(`${App.config.server}/player_api.php?username=${App.config.user}&password=${App.config.pass}&action=get_vod_streams`),
+                    App.fetchData(`${App.config.server}/player_api.php?username=${App.config.user}&password=${App.config.pass}&action=get_series`)
+                ]);
+
+                document.getElementById('statusContainer').style.display = 'none';
+
+                const ui = data.user_info;
+                let expStr = "Ilimitado";
+                if (parseInt(ui.exp_date) > 0) {
+                    const d = new Date(ui.exp_date * 1000);
+                    expStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+                }
+
+                document.getElementById('scannerData').innerHTML = `
+                    <div class="scan-grid-top">
+                        <div class="scan-item"><span>Status</span><strong class="${ui.status === 'Active' ? 'status-active' : 'status-expired'}">${ui.status.toUpperCase()}</strong></div>
+                        <div class="scan-item"><span>Vencimento</span><strong>${expStr}</strong></div>
+                        <div class="scan-item"><span>Limite Telas</span><strong>${ui.max_connections || "Ilimitado"}</strong></div>
+                        <div class="scan-item"><span>Telas em Uso</span><strong>${ui.active_cons || "0"}</strong></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stats-col">
+                            <span><i class="fas fa-tv" style="color:var(--info);"></i> Canais</span>
+                            <strong>${App.getCount(liveData)}</strong>
+                        </div>
+                        <div class="stats-col">
+                            <span><i class="fas fa-film" style="color:var(--primary);"></i> Filmes</span>
+                            <strong>${App.getCount(vodData)}</strong>
+                        </div>
+                        <div class="stats-col">
+                            <span><i class="fas fa-video" style="color:var(--success);"></i> Séries</span>
+                            <strong>${App.getCount(seriesData)}</strong>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('scannerResult').style.display = 'block';
+                App.showToast("Diagnóstico avançado concluído!", "success");
+
+            } catch (err) { App.handleError("Falha de comunicação ou servidor indisponível."); }
+        },
+
+        loadSmartDatabase: async () => { 
+            if(!App.extractCredentials()) return;
+            const { server, user, pass } = App.config;
+            const action = ['movie_smart', 'movie_multi'].includes(document.getElementById('contentType').value) ? 'get_vod_streams' : 'get_series';
+            const btnLoad = document.getElementById('btnLoadSmart');
+            btnLoad.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> A Sincronizar...'; btnLoad.disabled = true;
+            
+            const data = await App.fetchData(`${server}/player_api.php?username=${user}&password=${pass}&action=${action}`);
+            btnLoad.style.display = 'none';
+            if (data && data.length) {
+                document.getElementById('smartSearchArea').style.display = 'block';
+                // Ordenação Alfabética Inteligente Garantida A-Z
+                App.database = data.sort((a, b) => (a.name || a.title || "").localeCompare(b.name || b.title || ""));
+                App.filterSmartResults(); document.getElementById('smartSearch').focus();
+            } else {
+                btnLoad.style.display = 'flex'; btnLoad.innerHTML = '<i class="fas fa-redo"></i> Tentar Novamente'; btnLoad.disabled = false;
+                App.showToast("Nenhum conteúdo encontrado ou dados incorretos.", "error");
+            }
+        },
+
+        // Motor Anti-Lag para Pesquisa (Debounce)
+        debounceSearch: () => {
+            clearTimeout(App.searchTimer);
+            App.searchTimer = setTimeout(() => {
+                App.filterSmartResults();
+            }, 300);
+        },
+
+        filterSmartResults: () => { 
+            const query = App.normalizeStr(document.getElementById('smartSearch').value);
+            const isMovie = ['movie_smart', 'movie_multi'].includes(document.getElementById('contentType').value);
+            let htmlArray = [];
+            
+            for(const item of App.database) {
+                const nameRaw = item.name || item.title || "Desconhecido";
+                if(App.normalizeStr(nameRaw).includes(query)) {
+                    const id = isMovie ? item.stream_id : item.series_id;
+                    const cover = (isMovie ? item.stream_icon : item.cover) || "";
+                    const safeName = nameRaw.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    htmlArray.push(
+                        `<div class="smart-item" onclick="App.selectMedia(${id}, '${safeName}', '${cover}', '${isMovie ? item.container_extension || "mp4" : ""}', this)">
+                            <img src="${cover}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTUwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjIyIi8+PC9zdmc+'" loading="lazy">
+                            <div class="info"><div class="title">${nameRaw}</div><div class="meta">ID: ${id}</div></div>
+                        </div>`
+                    );
+                    if(htmlArray.length >= 80) break;
+                }
+            }
+            document.getElementById('smartResults').innerHTML = htmlArray.length ? htmlArray.join('') : '<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Nenhuma mídia encontrada.</div>';
+        },
+
+        selectMedia: (id, name, cover, ext, element) => { 
+            if (['series_multi', 'movie_multi'].includes(document.getElementById('contentType').value)) {
+                if (!App.multiSelection.find(s => s.id === id)) { App.multiSelection.push({ id, name, cover, ext }); App.renderCart(); }
+            } else {
+                document.getElementById('selectedMediaId').value = id; document.getElementById('selectedMediaName').value = name;
+                document.getElementById('selectedMediaCover').value = cover; document.getElementById('selectedMediaExt').value = ext;
+                document.getElementById('smartSearch').value = name;
+                document.querySelectorAll('.smart-item').forEach(el => el.classList.remove('selected')); element.classList.add('selected');
+            }
+        },
+
+        renderCart: () => { 
+            document.getElementById('cartCount').innerText = App.multiSelection.length;
+            const container = document.getElementById('cartItems');
+            if (App.multiSelection.length === 0) return container.innerHTML = '<div style="text-align:center; font-size:10px; color:var(--text-muted); padding:15px; font-weight: 600; text-transform: uppercase;">O pacote está vazio.</div>';
+            
+            const htmlArray = App.multiSelection.map(item => 
+                `<div class="cart-item">
+                    <div class="name"><i class="fas fa-play-circle" style="color:var(--primary);"></i> ${item.name}</div>
+                    <i class="fas fa-trash-alt remove" onclick="App.removeCartItem(${item.id})"></i>
+                </div>`
+            );
+            container.innerHTML = htmlArray.join('');
+        },
+
+        removeCartItem: (id) => { App.multiSelection = App.multiSelection.filter(s => s.id !== id); App.renderCart(); },
+
+        start: async () => {
+            if(!App.extractCredentials()) return;
+            App.config.startTime = Date.now();
+            
+            App.config.format = document.getElementById('format').value;
+            App.config.type = document.getElementById('contentType').value;
+
+            if (['series_multi', 'movie_multi'].includes(App.config.type) && App.multiSelection.length === 0) return App.showToast("O pacote está vazio. Selecione uma mídia primeiro.", "warning");
+
+            document.getElementById('btnSubmit').disabled = true; document.getElementById('resultArea').style.display = 'none';
+            document.getElementById('statusContainer').style.display = 'block'; App.updateStatus("A inicializar núcleo de processamento...", "", -1);
+            
+            try {
+                const authData = await App.fetchData(`${App.config.server}/player_api.php?username=${App.config.user}&password=${App.config.pass}`);
+                if (!authData || !authData.user_info) return App.handleError("Autenticação falhou. Verifique a validade da conta.");
+                const exp = parseInt(authData.user_info.exp_date);
+                App.config.expDateStr = exp > 0 ? (() => { const d = new Date(exp * 1000); return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`; })() : "Ilimitado";
+
+                if (['live', 'movie'].includes(App.config.type)) await App.generateCategoryBased();
+                else if (App.config.type === 'series') await App.generateAllSeries();
+                else if (App.config.type === 'movie_smart') await App.generateSingleMovie();
+                else if (App.config.type === 'movie_multi') await App.generateMultiMovie();
+                else if (App.config.type === 'series_smart') await App.generateSingleSeries();
+                else if (App.config.type === 'series_multi') await App.generateMultiSeries();
+                else await App.generateFullDatabase();
+
+            } catch (err) { App.handleError("Erro crítico durante a compilação."); }
+        },
+
+        // ORDENAÇÃO INTELIGENTE GARANTIDA NAS SÉRIES
+        generateAllSeries: async () => {
+            const { server, user, pass } = App.config;
+            App.updateStatus("A catalogar diretórios...", "A obter a lista central de séries...", 5);
+
+            const seriesList = await App.fetchData(`${server}/player_api.php?username=${user}&password=${pass}&action=get_series`);
+            if (!seriesList || !seriesList.length) return App.handleError("O servidor não retornou séries.");
+
+            let m3uArray = ['#EXTM3U x-tvg-url="" size="Medium"'];
+            let epCount = 0; let completed = 0; const total = seriesList.length;
+
+            App.updateStatus("Motor Turbo Extremo Ativado ⚡", `0 / ${total} Séries indexadas`, 10);
+
+            const concurrency = 50; 
+            let index = 0;
+
+            const worker = async () => {
+                while (index < total) {
+                    const i = index++;
+                    const item = seriesList[i];
+                    try {
+                        const data = await App.fetchData(`${server}/player_api.php?username=${user}&password=${pass}&action=get_series_info&series_id=${item.series_id}`);
+                        if(data && data.episodes) {
+                            
+                            // ORDENA AS TEMPORADAS MATEMATICAMENTE
+                            const sortedSeasons = Object.entries(data.episodes).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+                            
+                            sortedSeasons.forEach(([sKey, eps]) => {
+                                const sNum = parseInt(sKey).toString().padStart(2, '0');
+                                
+                                // ORDENA OS EPISÓDIOS MATEMATICAMENTE
+                                const sortedEps = eps.sort((a, b) => parseInt(a.episode_num || 0) - parseInt(b.episode_num || 0));
+                                
+                                sortedEps.forEach(ep => {
+                                    const eNum = parseInt(ep.episode_num || 1).toString().padStart(2, '0');
+                                    const epTitle = ep.title || (ep.info && ep.info.name) || `T-${sNum} - Episódio ${eNum}`;
+                                    const url = `${server}/series/${user}/${pass}/${ep.id}.${ep.container_extension || "mp4"}`;
+                                    m3uArray.push(`#EXTINF:-1 tvg-id="" tvg-name="${epTitle}" tvg-logo="${item.cover || ''}" group-title="${item.name}",${epTitle}\n${url}`);
+                                    epCount++;
+                                });
+                            });
+                        }
+                    } catch(e) {} 
+                    
+                    completed++;
+                    if (completed % 15 === 0 || completed === total) {
+                        const percent = Math.floor(10 + ((completed / total) * 85)); 
+                        App.updateStatus("A ordenar e transferir metadados...", `${completed} de ${total} Séries processadas`, percent);
+                    }
+                }
+            };
+
+            const workers = [];
+            for (let i = 0; i < concurrency; i++) workers.push(worker());
+            await Promise.all(workers);
+
+            App.updateStatus("A encriptar e compilar ficheiro...", "Gerando estrutura M3U...", 98);
+            
+            const formatedLabel = `Séries <br><span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:none; letter-spacing:0px;">(${epCount} Episódios ordenados)</span>`;
+            App.finishProcess(m3uArray.join('\n') + '\n', total, formatedLabel, `${App.config.prefix}_SERIES_TURBO_${App.config.expDateStr}`);
+        },
+
+        generateCategoryBased: async () => {
+            const { server, user, pass, format, type } = App.config;
+            const isLive = type === 'live';
+            
+            App.updateStatus("A organizar categorias...", "Sincronização em curso ⚡", 30);
+            const cats = await App.fetchData(`${server}/player_api.php?username=${user}&password=${pass}&action=${isLive ? 'get_live_categories' : 'get_vod_categories'}`);
+            if(!cats) return App.handleError("Erro ao estruturar diretórios da base.");
+
+            const catMap = cats.reduce((map, c) => { map[c.category_id] = c.category_name; return map; }, {});
+
+            App.updateStatus("A extrair dados de mídia...", "A compilar hiperligações de alta velocidade...", 70);
+            const streams = await App.fetchData(`${server}/player_api.php?username=${user}&password=${pass}&action=${isLive ? 'get_live_streams' : 'get_vod_streams'}`);
+            if (!streams || !streams.length) return App.handleError("A base de dados encontra-se vazia.");
+
+            let m3uArray = ['#EXTM3U x-tvg-url="" size="Medium"'];
+            
+            streams.forEach(item => {
+                const name = (item.name || item.title || "Unknown").trim();
+                const catName = (catMap[item.category_id] || "Sem Categoria").trim();
+                const url = `${server}${isLive ? "/live/" : "/movie/"}${user}/${pass}/${item.stream_id || item.id}.${isLive ? format : (item.container_extension || "mp4")}`;
+                let catchupTags = (isLive && item.tv_archive && item.tv_archive != 0) ? ` catchup="append" catchup-days="${item.tv_archive_duration ? Math.max(1, Math.round(item.tv_archive_duration / 24)) : 3}"` : "";
+                m3uArray.push(`#EXTINF:-1 tvg-id="${item.epg_channel_id ? item.epg_channel_id.trim() : ''}" tvg-name="${name}" tvg-logo="${item.stream_icon||''}" group-title="${catName}"${catchupTags},${name}\n${url}`);
+            });
+
+            App.updateStatus("Otimizando metadados M3U...", "", 95);
+            App.finishProcess(m3uArray.join('\n') + '\n', streams.length, isLive ? "Canais" : "Filmes", `${App.config.prefix}_${isLive ? "TV" : "FILMES"}_${App.config.expDateStr}`);
+        },
+
+        generateMultiMovie: async () => {
+            const { server, user, pass } = App.config;
+            let m3uArray = ['#EXTM3U x-tvg-url="" size="Medium"'];
+            App.updateStatus("A gerar Pack Personalizado...", "A alocar links de vídeo...", 50);
+            App.multiSelection.forEach(item => {
+                m3uArray.push(`#EXTINF:-1 tvg-id="" tvg-name="${item.name}" tvg-logo="${item.cover}" group-title="Filmes Premium",${item.name}\n${server}/movie/${user}/${pass}/${item.id}.${item.ext || "mp4"}`);
+            });
+            App.finishProcess(m3uArray.join('\n') + '\n', App.multiSelection.length, "Filmes no Pacote", `${App.config.prefix}_PACOTE_FILMES_${App.config.expDateStr}`);
+        },
+
+        generateSingleMovie: async () => {
+            App.updateStatus("A processar faixa de vídeo...", "Isolando mídia única...", 50);
+            const id = document.getElementById('selectedMediaId').value;
+            const name = document.getElementById('selectedMediaName').value;
+            const m3u = `#EXTM3U size="Medium"\n#EXTINF:-1 tvg-id="" tvg-name="${name}" tvg-logo="${document.getElementById('selectedMediaCover').value}" group-title="Filme Solicitado",${name}\n${App.config.server}/movie/${App.config.user}/${App.config.pass}/${id}.${document.getElementById('selectedMediaExt').value || "mp4"}\n`;
+            App.finishProcess(m3u, 1, "Filme", `${name.replace(/[^a-zA-Z0-9_-]/gi, '_')}_${App.config.expDateStr}`);
+        },
+
+        generateMultiSeries: async () => {
+            const { server, user, pass } = App.config;
+            let m3uArray = ['#EXTM3U x-tvg-url="" size="Medium"']; let epCount = 0;
+            const promises = App.multiSelection.map(item => App.fetchData(`${server}/player_api.php?username=${user}&password=${pass}&action=get_series_info&series_id=${item.id}`).then(data => ({ item, data })).catch(() => ({ item, data: null })));
+            
+            App.updateStatus("A processar Pack de Séries...", "A injetar dados Multiplex e Ordenando ⚡", 50);
+            const results = await Promise.all(promises);
+            
+            results.forEach(({ item, data }) => {
+                if(data && data.episodes) {
+                    const sortedSeasons = Object.entries(data.episodes).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+                    sortedSeasons.forEach(([sKey, eps]) => {
+                        const sNum = parseInt(sKey).toString().padStart(2, '0');
+                        const sortedEps = eps.sort((a, b) => parseInt(a.episode_num || 0) - parseInt(b.episode_num || 0));
+                        sortedEps.forEach(ep => {
+                            const eNum = parseInt(ep.episode_num || 1).toString().padStart(2, '0');
+                            const epTitle = ep.title || (ep.info && ep.info.name) || `T-${sNum} - Episódio ${eNum}`;
+                            m3uArray.push(`#EXTINF:-1 tvg-id="" tvg-name="${epTitle}" tvg-logo="${item.cover}" group-title="${item.name}",${epTitle}\n${server}/series/${user}/${pass}/${ep.id}.${ep.container_extension || "mp4"}`);
+                            epCount++;
+                        });
+                    });
+                }
+            });
+            App.finishProcess(m3uArray.join('\n') + '\n', epCount, "Episódios Ordenados", `${App.config.prefix}_PACOTE_SERIES_${App.config.expDateStr}`);
+        },
+
+        generateSingleSeries: async () => {
+            const id = document.getElementById('selectedMediaId').value;
+            const name = document.getElementById('selectedMediaName').value;
+            App.updateStatus("A decodificar diretório...", "A ordenar matematicamente os episódios...", 50);
+            const data = await App.fetchData(`${App.config.server}/player_api.php?username=${App.config.user}&password=${App.config.pass}&action=get_series_info&series_id=${id}`);
+            if(!data || !data.episodes) return App.handleError("Os dados desta série estão corrompidos no servidor.");
+
+            let m3uArray = ['#EXTM3U size="Medium"']; let count = 0;
+            const sortedSeasons = Object.entries(data.episodes).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+            sortedSeasons.forEach(([sKey, eps]) => {
+                const sNum = parseInt(sKey).toString().padStart(2, '0');
+                const sortedEps = eps.sort((a, b) => parseInt(a.episode_num || 0) - parseInt(b.episode_num || 0));
+                sortedEps.forEach(ep => {
+                    const eNum = parseInt(ep.episode_num || 1).toString().padStart(2, '0');
+                    const epTitle = ep.title || (ep.info && ep.info.name) || `T-${sNum} - Episódio ${eNum}`;
+                    m3uArray.push(`#EXTINF:-1 tvg-id="" tvg-name="${epTitle}" tvg-logo="${document.getElementById('selectedMediaCover').value}" group-title="${name}",${epTitle}\n${App.config.server}/series/${App.config.user}/${App.config.pass}/${ep.id}.${ep.container_extension || "mp4"}`);
+                    count++;
+                });
+            });
+            App.finishProcess(m3uArray.join('\n') + '\n', count, "Episódios", `${name.replace(/[^a-zA-Z0-9_-]/gi, '_')}_${App.config.expDateStr}`);
+        },
+
+        generateFullDatabase: async () => { 
+            App.updateStatus("A transferir Script Master...", "Aviso: Este ficheiro contém dados extremamente pesados.", 50);
+            const textData = await App.fetchData(`${App.config.server}/get.php?username=${App.config.user}&password=${App.config.pass}&type=m3u_plus&output=${App.config.format}`, false);
+            if(textData && textData.length > 100) {
+                App.finishProcess(textData, "Múltiplos", "Registos Brutos", `${App.config.prefix}_MASTER_BRUTO_${App.config.expDateStr}`);
+            } else { App.handleError("Falha crítica ao obter a base central."); }
+        },
+
+        finishProcess: (content, count, label, finalBaseName) => {
+            const timeTaken = ((Date.now() - App.config.startTime) / 1000).toFixed(2);
+            document.getElementById('timeBadge').innerHTML = `<i class="fas fa-bolt"></i> Compilado em ${timeTaken}s`;
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const dlBtn = document.getElementById('downloadBtn');
+            dlBtn.href = URL.createObjectURL(blob); dlBtn.download = `${finalBaseName}.m3u`;
+
+            document.getElementById('statsText').innerHTML = `Sistema Pronto! ⚡<span>${count} ${label}</span><div class="user-validity">Validade da Conta: ${App.config.expDateStr}</div>`;
+            document.getElementById('statusContainer').style.display = 'none';
+            document.getElementById('resultArea').style.display = 'block';
+            
+            App.showToast("Lista Premium gerada com sucesso!", "success");
+        },
+
+        resetForm: () => {
+            document.getElementById('resultArea').style.display = 'none';
+            document.getElementById('btnSubmit').disabled = false;
+        }
+    };
+</script>
+
+</body>
+</html>
